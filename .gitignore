@@ -1,6 +1,8 @@
 impl
 TODO.md
 apiLogs.txt
+chatIDs.txt
+settings.json
 src/__pycache__
 src/engine/__pycache__
 src/interfaces/__pycache__

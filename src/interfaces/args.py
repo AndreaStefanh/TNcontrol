@@ -1,13 +1,13 @@
 import sys
 
-from src.logNSet import engineFlags, settings, REGIONS
+from src.logNSet import engineFlags, settings, interfaces, REGIONS
 
 def parseArgs():
 
     sys.argv.pop(0)
     
     for arg in sys.argv:
-        arg = arg.lower()
+        #arg = arg.lower()
         
         if arg == "-h" or arg == "--help":
             print("Usage: python3 tncontrol.py [options]")
@@ -17,8 +17,10 @@ def parseArgs():
             print("      --engine=<ENG>         Select one or more engines separated by commas to perform the query")
             print("      --region=<REG | ALL>   Select one or more regions separated by commas to perform the query for the vesus engine")
             print("                             (default all enabled --region=ALL)")
+            print("      --settings=<FILE.json> Load settings from a file (default settings.json)")
             print("      --available-engines    Show all available engines")
             print("      --available-regions    Show all available regions formart for the '--region' flag")
+            print("      --telegram[=APIKEY]    Enable telegram bot interface")
             # TODO: Add parameters disable logging and load settings from file
             exit(0)
 
@@ -32,6 +34,7 @@ def parseArgs():
             settings.queryName = name
             
         elif arg.startswith("--engine="):
+            arg = arg.lower()
             engines = arg.split("=")[1].split(",")
 
             if engines == [""]:
@@ -48,6 +51,7 @@ def parseArgs():
             
         elif arg.startswith("--region="):
             regions = arg.split("=")[1].split(",")
+            arg = arg.lower()
 
             if regions == [""]:
                 print("Error: '--region=' cannot be empty")
@@ -62,6 +66,15 @@ def parseArgs():
                 else:
                     print(f"Error: '{region}' is not a valid region")
                     exit(-1)
+
+        elif arg.startswith("--settings="):
+            settingsFile = arg.split("=")[1]
+
+            if settingsFile == "":
+                print("Error: '--settings=' cannot be empty")
+                exit(-1)
+
+            settings.settingsFile = settingsFile
         
         elif arg == "--available-engines":
             print("Available engines:")
@@ -74,5 +87,16 @@ def parseArgs():
             for region, code in REGIONS.items():
                 print(f"{code}  -> {region}")
             exit(0)
+        
+        elif arg.startswith("--telegram"):
+            settings.interface = interfaces.TELEGRAM
+            
+            key = arg.split("=")
+            if len(key) == 2:
+                settings.telegramAPIKey = key[1]
+
+        else:
+            print(f"Error: '{arg}' is not a valid argument")
+            exit(-1)
     
     return
