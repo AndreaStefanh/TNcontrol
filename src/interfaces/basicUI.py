@@ -55,7 +55,7 @@ def printResult(result: List[List[Optional[Dict[str, Dict[str, str | List[str]]]
            outputStr += f" FSI ID: {quialified[0]}\n"
            outputStr += f" Club ID: {quialified[3]}\n"
     
-    print(outputStr, end="")
+    print(f"\r{outputStr}", end="", flush=True)
     return
 
 def main() -> None:
@@ -72,6 +72,7 @@ def main() -> None:
         for region in REGIONS.keys():
             settings.vesusRegionsToQuery.append(region)
 
+    print("Loading...", end="", flush=True)
 
     result = asyncio.run(engine.start(logBUI()))
     printResult(result)

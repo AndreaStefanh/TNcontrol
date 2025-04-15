@@ -137,6 +137,7 @@ async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                     await printMessageWithMenu("⚠️ Please select at least one engine before running the bot.", update, context)
                     return
                 
+                await update.message.reply_text("⏳ Loading...")
                 result = await engine.start(logTG())
                 msg = ""
 
