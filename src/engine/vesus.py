@@ -36,7 +36,7 @@ async def requestToAPI(logInt: logger, req: Dict[Any, Any]) -> Dict[Any, Any]:
     returnResponse = None
 
     async with aiohttp.ClientSession() as session:
-        async with session.post(url, headers=header, json=req, timeout=180) as response:
+        async with session.post(url, headers=header, json=req, timeout=aiohttp.ClientTimeout(total=180)) as response:
             if response.status < 200 or response.status > 299:
                 text = await response.text()
                 await logInt.error(f"UNEXPECTED STATUS CODE: {response.status}\n{text}", shouldExit=True)

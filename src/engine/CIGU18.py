@@ -11,7 +11,7 @@ async def query(logInt: logger) -> List[List[str]]:
     qualified = []
     text = None
     async with aiohttp.ClientSession() as session:
-        async with session.get(url, timeout=180) as response:
+        async with session.get(url, timeout=aiohttp.ClientTimeout(total=180)) as response:
 
             if response.status < 200 or response.status > 299:
                 text = await response.text()
