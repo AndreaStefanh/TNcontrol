@@ -202,11 +202,11 @@ async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         match update.message.text:
 
             case "✅ Vesus" | "❌ Vesus":
-                settings.selectedEngine ^= settings.selectedEngine.VESUS
+                settings.selectedEngine ^= engineFlags.VESUS
                 await printMessageWithMenu("ℹ️ Vesus engine toggled.", update, context)
 
             case "✅ CIGU18" | "❌ CIGU18":
-                settings.selectedEngine ^= settings.selectedEngine.CIGU18
+                settings.selectedEngine ^= engineFlags.CIGU18
                 await printMessageWithMenu("ℹ️ CIGU18 engine toggled.", update, context)
 
             case "⬅️ Back":
