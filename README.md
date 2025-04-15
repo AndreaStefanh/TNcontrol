@@ -74,16 +74,15 @@ You can also create a **settings.json** file in the program root to keep your se
 ## TODO
 
 - For the engine
-    [ ] Add a flag to disable logs
-    [ ] Add syntax to query multiple people
-    [ ] Add support to query [Vegaresult](https://www.vegaresult.com/it/tournaments.php)
-    [ ] Add proxy support so ip address doesn't timeout
-
+  - [ ] Add a flag to disable logs
+  - [ ] Add syntax to query multiple people
+  - [ ] Add support to query [Vegaresult](https://www.vegaresult.com/it/tournaments.php)
+  - [ ] Add proxy support so ip address doesn't timeout
 
 - For the telegram interface
-    [ ] Add support for the '--region' flag
-    [ ] Add support for doing an automatic query every day at a selectable time
+  - [ ] Add support for the '--region' flag
+  - [ ] Add support for doing an automatic query every day at a selectable time
 
 - For the terminal interface
-    [ ] Improve the cli and program argument parameters
-    [ ] Add support to a tui interface
+  - [ ] Improve the cli and program argument parameters
+  - [ ] Add support to a tui interface
