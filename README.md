@@ -18,10 +18,6 @@ TNcontrol is a tool designed to find chess tournaments where the person you are 
 - Logging system for tracking errors and operations.
 - Supports a setting file to make persistent queries without entering data every time
 
-- Daily automatic notifications (planned).
-- Proxy support (planned).
-- Improved TUI (Text User Interface) for better interaction (planned).
-
 ---
 
 ## Quick Start
@@ -55,8 +51,8 @@ If you want to use TNcontrol with the telegram interface just create a bot with 
 $ python3 ./main.py --telegram=YOUR_API_KEY_GOES_HERE
 ```
 
-You can also create a settings.json file in the program root to keep your settings.
-```json
+You can also create a **settings.json** file in the program root to keep your settings.
+```json5
 {
     // IMPORTANT! Json does not support comments I am putting them for documentation but in real usage it will not work
 
