@@ -46,14 +46,20 @@ def printResult(result: List[List[Optional[Dict[str, Dict[str, str | List[str]]]
         outputStr += f"Using the keyword: `{settings.queryName}` in the qualified CIGU18 FSI database, I found:\n"
 
         for quialified in GIGResult:
-           outputStr += "\n"
-           outputStr += f"Name: {quialified[1]}\n"
-           outputStr += f" Region: {quialified[5]}\n"
-           outputStr += f" Province: {quialified[4]}\n"
-           outputStr += f" Birthdate: {quialified[2]}\n"
-           outputStr += f" Sex: {quialified[6]}\n"
-           outputStr += f" FSI ID: {quialified[0]}\n"
-           outputStr += f" Club ID: {quialified[3]}\n"
+            outputStr += "\n"
+            outputStr += f"Name: {quialified[1]}\n"
+
+            for k, v in REGIONS.items():
+                if v == quialified[5]:
+                    outputStr += f" Region: {k}\n"
+                    break
+            #outputStr += f" Region: {quialified[5]}\n"
+
+            outputStr += f" Province: {quialified[4]}\n"
+            outputStr += f" Birthdate: {quialified[2]} (YYYY-MM-DD)\n"
+            outputStr += f" Sex: {quialified[6]}\n"
+            outputStr += f" FSI ID: {quialified[0]}\n"
+            outputStr += f" Club ID: {quialified[3]}\n"
     
     print(f"\r{outputStr}", end="", flush=True)
     return
