@@ -1,3 +1,4 @@
+import traceback
 import datetime
 from typing import Optional
 from enum import IntFlag
@@ -25,20 +26,30 @@ MAX_LENGTH = 4000
 class logTG(logger):
 
     @classmethod
-    async def error(cls, msg: str, shouldExit: bool = False, timestamp: Optional[str] = None) -> None:
+    async def error(cls, msg: str, shouldExit: bool = False, timestamp: Optional[str] = None, stacktrace = None) -> None:
         
         if timestamp is None:
             timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-         
-        print(f"[{timestamp}] ERROR: {msg}")
+        
+        if stacktrace is None:
+            print(f"[{timestamp}] ERROR: {msg}")
+        else:
+            print(f"[{timestamp}] ERROR: {msg}\nSTACKTRACE:\n{stacktrace}")
 
         for chatID in savedChatIDs:
             try:
-                await bot.send_message(chat_id=chatID, text=f"⚠️ [{timestamp}] ERROR: {msg}")
+                msg = f"⚠️ [{timestamp}] ERROR: {msg}"
+                for i in range(0, len(msg), MAX_LENGTH):
+                    await bot.send_message(chat_id=chatID, text=msg[i:i+MAX_LENGTH])
             except error.TelegramError as e:
-                print(f"Failed to send error message to chat ID {chatID}: {e}")
+                errorDetails = traceback.format_exc()
+
+                print(f"Failed to send error message to chat ID {chatID}: {e}\nSee errorLogs file to see more informations")
                 with open("errorLogs.txt", "a", encoding="utf-8") as logFile:
-                    logFile.write(f"Failed to send error message to chat ID {chatID}: {e}\n")
+                    logFile.write(f"Failed to send error message to chat ID {chatID}: {e}\nSTACKTRACE:\n{errorDetails}\n")
+        
+        if stacktrace is not None:
+            msg += f"\nSTACKTRACE:\n{stacktrace}"
 
         await super().error(msg, shouldExit = shouldExit, timestamp = timestamp)
         return
@@ -240,7 +251,14 @@ async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                     return
                 
                 await update.message.reply_text("⏳ Loading...")
-                result = await engine.start(logTG())
+
+                try:
+                    result = await engine.start(logTG())
+                except Exception as e:
+                    errorDetails = traceback.format_exc()
+                    await logTG.error(f"Error while running the bot: {e}\nSee errorLogs file to see more informations.", stacktrace = errorDetails)
+                    return
+                
                 msg = ""
 
                 if settings.selectedEngine & engineFlags.VESUS:
