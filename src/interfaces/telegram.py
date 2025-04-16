@@ -20,6 +20,7 @@ selectedMenu: menuFlags = menuFlags.MAIN_MENU
 
 bot = None
 savedChatIDs = []
+MAX_LENGTH = 4000
 
 class logTG(logger):
 
@@ -66,15 +67,49 @@ def saveChatID(chatID: str) -> None:
 
     return
 
+def splitMessage(message: str) -> list[str]:
+    blocks = []
+    start = 0
+    lenght = len(message)
+    
+    while start < lenght:
+        end = min(start + MAX_LENGTH, lenght)
+        block = message[start:end]
+
+        if end == lenght:
+            blocks.append(block)
+            break
+        
+        posNewLine = block.rfind('\n')
+        if posNewLine != -1:
+            blocks.append(block[:posNewLine + 1])
+            start += posNewLine + 1
+        else:
+            blocks.append(block)
+            start += MAX_LENGTH
+
+    return blocks
+
+def escapeMarkdown(message: str) -> str:
+    escapeChars = ['*', '_', '[', ']', '`']
+    for char in escapeChars:
+        message = message.replace(char, f'\\{char}')
+    
+    return message
+
 async def printMessageWithMenu(message: str, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     match selectedMenu:
         
         case menuFlags.MAIN_MENU:
+            msgBlocks = splitMessage(message)
+
             if settings.selectedEngine & engineFlags.VESUS:
-                await update.message.reply_text(message, reply_markup=ReplyKeyboardMarkup([["👤 Query", "⚙️ Engine", "🗺️ Select Regions"], ["▶️ Run"]], resize_keyboard=True), parse_mode="markdown")
+                for msg in msgBlocks:
+                    await update.message.reply_text(msg, reply_markup=ReplyKeyboardMarkup([["👤 Query", "⚙️ Engine", "🗺️ Select Regions"], ["▶️ Run"]], resize_keyboard=True), parse_mode="markdown")
             else:
-                await update.message.reply_text(message, reply_markup=ReplyKeyboardMarkup([["👤 Query", "⚙️ Engine"], ["▶️ Run"]], resize_keyboard=True), parse_mode="markdown")
+                for msg in msgBlocks:
+                    await update.message.reply_text(message, reply_markup=ReplyKeyboardMarkup([["👤 Query", "⚙️ Engine"], ["▶️ Run"]], resize_keyboard=True), parse_mode="markdown")
 
         case menuFlags.QUERY_NAME:
             await update.message.reply_text(message, reply_markup=ReplyKeyboardMarkup([["⬅️ Back"]], resize_keyboard=True))
@@ -209,19 +244,19 @@ async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 msg = ""
 
                 if settings.selectedEngine & engineFlags.VESUS:
-                    msg = f"Using the keyword: '{settings.queryName}' for seeing the Vesus pre-registrations, I found the following tournaments:\n\n"
+                    msg = f"Using the keyword: '{escapeMarkdown(settings.queryName)}' for seeing the Vesus pre-registrations, I found the following tournaments:\n\n"
                     vesusResult = result[0]
 
                     for tournament in vesusResult:
                         for shortKey in tournament:
-                            msg += f"🔹 *Tournament Name:* {tournament[shortKey]['tornument']}\n"
-                            msg += f"📍 *Place:* {tournament[shortKey]['location']}\n"
-                            msg += f"📅 *End of registration:* {tournament[shortKey]['endRegistration']}\n"
-                            msg += f"🎯 *Start of tournament:* {tournament[shortKey]['startTornument']}\n"
+                            msg += f"🔹 *Tournament Name:* {escapeMarkdown(tournament[shortKey]['tornument'])}\n"
+                            msg += f"📍 *Place:* {escapeMarkdown(tournament[shortKey]['location'])}\n"
+                            msg += f"📅 *End of registration:* {escapeMarkdown(tournament[shortKey]['endRegistration'])}\n"
+                            msg += f"🎯 *Start of tournament:* {escapeMarkdown(tournament[shortKey]['startTornument'])}\n"
                             msg += f"🔗 [Tournament Link](https://www.vesus.org/tournament/{shortKey})\n"
                             msg += f"👥 *Who There:*\n"
                             for names in tournament[shortKey]["name"]:
-                                msg += f"  - {names}\n"
+                                msg += f"  - {escapeMarkdown(names)}\n"
                             msg += "\n"
                 
                 if settings.selectedEngine & engineFlags.CIGU18:
@@ -230,23 +265,23 @@ async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                     else:
                         GIGResult = result[0]
                     
-                    msg += f"Using the keyword: '{settings.queryName}' in the qualified CIGU18 FSI database, I found:\n"
+                    msg += f"Using the keyword: '{escapeMarkdown(settings.queryName)}' in the qualified CIGU18 FSI database, I found:\n"
 
                     for quialified in GIGResult:
                         msg += "\n"
-                        msg += f"👤 *Name:* {quialified[1]}\n"
+                        msg += f"👤 *Name:* {escapeMarkdown(quialified[1])}\n"
 
                         for k, v in REGIONS.items():
                             if v == quialified[5]:
-                                msg += f" 🗺️ *Region:* {k}\n"
+                                msg += f" 🗺️ *Region:* {escapeMarkdown(k)}\n"
                                 break
-                        #msg += f" 🗺️ *Region:* {quialified[5]}\n"
+                        #msg += f" 🗺️ *Region:* {escapeMarkdown(quialified[5])}\n"
 
-                        msg += f" 📍 *Province:* {quialified[4]}\n"
-                        msg += f" 🎂 *Birthdate:* {quialified[2]} (YYYY-MM-DD)\n"
-                        msg += f" ⚧️ *Sex:* {quialified[6]}\n"
-                        msg += f" 🇮🇹 *FSI ID:* {quialified[0]}\n"
-                        msg += f" 🏢 *Club ID:* {quialified[3]}\n"
+                        msg += f" 📍 *Province:* {escapeMarkdown(quialified[4])}\n"
+                        msg += f" 🎂 *Birthdate:* {escapeMarkdown(quialified[2])} (YYYY-MM-DD)\n"
+                        msg += f" ⚧️ *Sex:* {escapeMarkdown(quialified[6])}\n"
+                        msg += f" 🇮🇹 *FSI ID:* {escapeMarkdown(quialified[0])}\n"
+                        msg += f" 🏢 *Club ID:* {escapeMarkdown(quialified[3])}\n"
                 
                 await printMessageWithMenu(msg, update, context)
 
