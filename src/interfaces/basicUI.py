@@ -1,4 +1,5 @@
 import datetime
+import calendar
 import asyncio
 
 from typing import Optional, List, Dict
@@ -56,7 +57,8 @@ def printResult(result: List[List[Optional[Dict[str, Dict[str, str | List[str]]]
             #outputStr += f" Region: {quialified[5]}\n"
 
             outputStr += f" Province: {quialified[4]}\n"
-            outputStr += f" Birthdate: {quialified[2]} (YYYY-MM-DD)\n"
+            bdate = quialified[2].split("-")
+            outputStr += f" Birthdate: {bdate[2]} {calendar.month_name[int(bdate[1])]} {bdate[0]}\n"
             outputStr += f" Sex: {quialified[6]}\n"
             outputStr += f" FSI ID: {quialified[0]}\n"
             outputStr += f" Club ID: {quialified[3]}\n"

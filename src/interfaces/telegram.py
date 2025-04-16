@@ -1,5 +1,6 @@
 import traceback
 import datetime
+import calendar
 from typing import Optional
 from enum import IntFlag
 
@@ -26,7 +27,7 @@ MAX_LENGTH = 4000
 class logTG(logger):
 
     @classmethod
-    async def error(cls, msg: str, shouldExit: bool = False, timestamp: Optional[str] = None, stacktrace = None) -> None:
+    async def error(cls, msg: str, shouldExit: bool = False, timestamp: Optional[str] = None, stacktrace: Optional[str] = None) -> None:
         
         if timestamp is None:
             timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -44,7 +45,7 @@ class logTG(logger):
             except error.TelegramError as e:
                 errorDetails = traceback.format_exc()
 
-                print(f"Failed to send error message to chat ID {chatID}: {e}\nSee errorLogs file to see more informations")
+                print(f"Failed to send error message to chat ID {chatID}: {e}.\nSee errorLogs file to see more informations")
                 with open("errorLogs.txt", "a", encoding="utf-8") as logFile:
                     logFile.write(f"Failed to send error message to chat ID {chatID}: {e}\nSTACKTRACE:\n{errorDetails}\n")
         
@@ -256,7 +257,7 @@ async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                     result = await engine.start(logTG())
                 except Exception as e:
                     errorDetails = traceback.format_exc()
-                    await logTG.error(f"Error while running the bot: {e}\nSee errorLogs file to see more informations.", stacktrace = errorDetails)
+                    await logTG.error(f"Error while running the bot: {e}.\nSee errorLogs file to see more informations.", stacktrace = errorDetails)
                     return
                 
                 msg = ""
@@ -296,7 +297,8 @@ async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                         #msg += f" 🗺️ *Region:* {escapeMarkdown(quialified[5])}\n"
 
                         msg += f"📍 *Province:* {escapeMarkdown(quialified[4])}\n"
-                        msg += f"🎂 *Birthdate:* {escapeMarkdown(quialified[2])} (YYYY-MM-DD)\n"
+                        bdate = quialified[2].split("-")
+                        msg += f"🎂 *Birthdate:* {bdate[2]} {calendar.month_name[int(bdate[1])]} {bdate[0]}\n"
                         msg += f"⚧️ *Sex:* {escapeMarkdown(quialified[6])}\n"
                         msg += f"🇮🇹 *FSI ID:* {escapeMarkdown(quialified[0])}\n"
                         msg += f"🏢 *Club ID:* {escapeMarkdown(quialified[3])}\n"
