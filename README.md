@@ -54,8 +54,6 @@ $ python3 ./main.py --telegram=YOUR_API_KEY_GOES_HERE
 You can also create a **settings.json** file in the program root to keep your settings.
 ```json5
 {
-    // IMPORTANT! Json does not support comments I am putting them for documentation but in real usage it will not work
-
     // here goes the interface you want to use with TNcontrol it can be 'basicUI' for the cli interface or 'telegram' to interface as a telegram bot
     "interface": "telegram",
     // If you specify telegram interface you will have to enter the key here

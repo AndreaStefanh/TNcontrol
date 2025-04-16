@@ -1,4 +1,5 @@
 import datetime
+import pyjson5
 import json
 
 from typing import Optional, Dict, Any
@@ -79,7 +80,7 @@ def loadSettings() -> None:
 
     try:
         with open(settings.settingsFile, "r", encoding="utf-8") as file:
-            settingsData = json.load(file)
+            settingsData = pyjson5.load(file)
 
             for key, value in settingsData.items():
 
@@ -134,7 +135,7 @@ def loadSettings() -> None:
         if not settings.settingsFile == "settings.json":
             print(f"Error: '{settings.settingsFile}' file not found")
             exit(-1)
-    except json.JSONDecodeError:
+    except pyjson5.Json5DecodeError:
         print(f"Error: '{settings.settingsFile}' file is not a valid JSON file")
         exit(-1)
 

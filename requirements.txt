@@ -1,3 +1,4 @@
+pyjson5
 aiohttp
 python-telegram-bot
 python-telegram-bot[ext]
