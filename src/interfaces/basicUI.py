@@ -31,8 +31,8 @@ def printResult(result: List[List[Optional[Dict[str, Dict[str, str | List[str]]]
             for shortKey in tournament:
                 outputStr += f"Tournament Name: {tournament[shortKey]['tornument']}\n"
                 outputStr += f" Place: {tournament[shortKey]['location']}\n"
-                outputStr += f" End of registration: {tournament[shortKey]['endRegistration']}\n"
-                outputStr += f" Start of tournament: {tournament[shortKey]['startTornument']}\n"
+                outputStr += f" End of registration: {datetime.datetime.fromisoformat(tournament[shortKey]['endRegistration'].replace("Z", "+00:00")).strftime("%d %B %Y, %H:%M")} UTC\n"
+                outputStr += f" Start of tournament: {datetime.datetime.fromisoformat(tournament[shortKey]['startTornument'].replace("Z", "+00:00")).strftime("%d %B %Y, %H:%M")} UTC\n"
                 outputStr += f" Tournament Link: https://www.vesus.org/tournament/{shortKey}\n"
                 outputStr += f" Who There:\n"
                 for names in tournament[shortKey]["name"]:

@@ -270,8 +270,8 @@ async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                         for shortKey in tournament:
                             msg += f"🔹 *Tournament Name:* {escapeMarkdown(tournament[shortKey]['tornument'])}\n"
                             msg += f"📍 *Place:* {escapeMarkdown(tournament[shortKey]['location'])}\n"
-                            msg += f"📅 *End of registration:* {escapeMarkdown(tournament[shortKey]['endRegistration'])}\n"
-                            msg += f"🎯 *Start of tournament:* {escapeMarkdown(tournament[shortKey]['startTornument'])}\n"
+                            msg += f"📅 *End of registration:* {datetime.datetime.fromisoformat(tournament[shortKey]['endRegistration'].replace("Z", "+00:00")).strftime("%d %B %Y, %H:%M")} UTC\n"
+                            msg += f"🎯 *Start of tournament:* {datetime.datetime.fromisoformat(tournament[shortKey]['startTornument'].replace("Z", "+00:00")).strftime("%d %B %Y, %H:%M")} UTC\n"
                             msg += f"🔗 [Tournament Link](https://www.vesus.org/tournament/{shortKey})\n"
                             msg += f"👥 *Who There:*\n"
                             for names in tournament[shortKey]["name"]:
