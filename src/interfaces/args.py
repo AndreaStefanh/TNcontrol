@@ -17,11 +17,11 @@ def parseArgs():
             print("      --engine=<ENG>         Select one or more engines separated by commas to perform the query")
             print("      --region=<REG | ALL>   Select one or more regions separated by commas to perform the query for the vesus engine")
             print("                             (default all enabled --region=ALL)")
+            print("  -l, --log                  Enable all logging on API requests in the apiLogs.txt file")
             print("      --settings=<FILE.json> Load settings from a file (default settings.json)")
             print("      --available-engines    Show all available engines")
             print("      --available-regions    Show all available regions formart for the '--region' flag")
             print("      --telegram[=APIKEY]    Enable telegram bot interface")
-            # TODO: Add parameters disable logging and load settings from file
             exit(0)
 
         elif arg.startswith("--name="):
@@ -66,6 +66,9 @@ def parseArgs():
                 else:
                     print(f"Error: '{region}' is not a valid region")
                     exit(-1)
+
+        elif arg == "-l" or arg == "--log":
+            settings.logApiRequests = True
 
         elif arg.startswith("--settings="):
             settingsFile = arg.split("=")[1]

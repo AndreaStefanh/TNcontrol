@@ -24,8 +24,9 @@ class logger:
     async def apiRequest(cls, url: str, payload: Dict[Any, Any], response_text: str) -> None:
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         
-        with open("apiLogs.txt", "a", encoding="utf-8") as logFile:
-            logFile.write(f"[{timestamp}] REQUEST TO: {url}\nPAYLOAD: {json.dumps(payload, indent=2, ensure_ascii=False)}\nRESPONSE: {response_text}\n\n")
+        if settings.logApiRequests:
+            with open("apiLogs.txt", "a", encoding="utf-8") as logFile:
+                logFile.write(f"[{timestamp}] REQUEST TO: {url}\nPAYLOAD: {json.dumps(payload, indent=2, ensure_ascii=False)}\nRESPONSE: {response_text}\n\n")
         
         return
 
@@ -43,6 +44,7 @@ class settings:
     selectedEngine: engineFlags = engineFlags.VESUS | engineFlags.CIGU18
     vesusRegionsToQuery = []
 
+    logApiRequests = False
     settingsFile = "settings.json"
     interface: interfaces = interfaces.BASIC_UI
     telegramAPIKey = ""
@@ -118,6 +120,12 @@ def loadSettings() -> None:
                         else:
                             print(f"Error: '{region}' is not a valid region")
                             exit(-1)
+                elif key == "logApiRequests":
+                    if type(value) is not bool:
+                        print(f"Error: '{key}' must be a boolean")
+                        exit(-1)
+
+                    settings.logApiRequests = bool(value)
                 else:
                     print(f"Error: '{key}' is not a valid setting")
                     exit(-1)

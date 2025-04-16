@@ -65,7 +65,9 @@ You can also create a **settings.json** file in the program root to keep your se
     // Here you can select which engine(s) to use and you can use this notation but also the notation of '--available-engines'
     "selectedEngine": ["vesus", "cigu18"],
     // Here if you are using the vesus and you do not want to search for all the tournaments in italy you can specify the regions where you want to make the query with the notation '--available-regions'
-    "vesusSelectedRegions": ["LAZ", "CAL"]
+    "vesusSelectedRegions": ["LAZ", "CAL"],
+    // Enable all logging on API requests in the apiLogs.txt file as the '-l' argument flag
+    "logApiRequests": true
 }
 ```
 
@@ -74,13 +76,11 @@ You can also create a **settings.json** file in the program root to keep your se
 ## TODO
 
 - For the engine
-  - [ ] Add a flag to disable logs
   - [ ] Add syntax to query multiple people
   - [ ] Add support to query [Vegaresult](https://www.vegaresult.com/it/tournaments.php)
   - [ ] Add proxy support so ip address doesn't timeout
 
 - For the telegram interface
-  - [ ] Add support for the '--region' flag
   - [ ] Add support for doing an automatic query every day at a selectable time
 
 - For the terminal interface
