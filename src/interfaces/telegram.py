@@ -273,15 +273,15 @@ async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
                         for k, v in REGIONS.items():
                             if v == quialified[5]:
-                                msg += f" 🗺️ *Region:* {escapeMarkdown(k)}\n"
+                                msg += f"🗺️ *Region:* {escapeMarkdown(k)}\n"
                                 break
                         #msg += f" 🗺️ *Region:* {escapeMarkdown(quialified[5])}\n"
 
-                        msg += f" 📍 *Province:* {escapeMarkdown(quialified[4])}\n"
-                        msg += f" 🎂 *Birthdate:* {escapeMarkdown(quialified[2])} (YYYY-MM-DD)\n"
-                        msg += f" ⚧️ *Sex:* {escapeMarkdown(quialified[6])}\n"
-                        msg += f" 🇮🇹 *FSI ID:* {escapeMarkdown(quialified[0])}\n"
-                        msg += f" 🏢 *Club ID:* {escapeMarkdown(quialified[3])}\n"
+                        msg += f"📍 *Province:* {escapeMarkdown(quialified[4])}\n"
+                        msg += f"🎂 *Birthdate:* {escapeMarkdown(quialified[2])} (YYYY-MM-DD)\n"
+                        msg += f"⚧️ *Sex:* {escapeMarkdown(quialified[6])}\n"
+                        msg += f"🇮🇹 *FSI ID:* {escapeMarkdown(quialified[0])}\n"
+                        msg += f"🏢 *Club ID:* {escapeMarkdown(quialified[3])}\n"
                 
                 await printMessageWithMenu(msg, update, context)
 
