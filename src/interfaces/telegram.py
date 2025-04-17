@@ -109,7 +109,17 @@ def escapeMarkdown(message: str) -> str:
     
     return message
 
-async def printMessageWithMenu(message: str, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def sendMsg(message: str, replyMarkup: Optional[ReplyKeyboardMarkup] = None) -> None:
+
+    for chatID in savedChatIDs:
+        if replyMarkup is None:
+            await bot.send_message(chat_id = chatID, text = message, parse_mode = "markdown")
+        else:
+            await bot.send_message(chat_id = chatID, text = message, parse_mode = "markdown", reply_markup = replyMarkup)
+
+    return
+
+async def printMessageWithMenu(message: str) -> None:
 
     match selectedMenu:
         
@@ -118,13 +128,13 @@ async def printMessageWithMenu(message: str, update: Update, context: ContextTyp
 
             if settings.selectedEngine & engineFlags.VESUS:
                 for msg in msgBlocks:
-                    await update.message.reply_text(msg, reply_markup=ReplyKeyboardMarkup([["👤 Query", "⚙️ Engine", "🗺️ Select Regions"], ["▶️ Run"]], resize_keyboard=True), parse_mode="markdown")
+                    await sendMsg(message, ReplyKeyboardMarkup([["👤 Query", "⚙️ Engine", "🗺️ Select Regions"], ["▶️ Run"]], resize_keyboard=True))
             else:
                 for msg in msgBlocks:
-                    await update.message.reply_text(message, reply_markup=ReplyKeyboardMarkup([["👤 Query", "⚙️ Engine"], ["▶️ Run"]], resize_keyboard=True), parse_mode="markdown")
+                    await sendMsg(message, ReplyKeyboardMarkup([["👤 Query", "⚙️ Engine"], ["▶️ Run"]], resize_keyboard=True))
 
         case menuFlags.QUERY_NAME:
-            await update.message.reply_text(message, reply_markup=ReplyKeyboardMarkup([["⬅️ Back"]], resize_keyboard=True))
+            await sendMsg(message, ReplyKeyboardMarkup([["⬅️ Back"]], resize_keyboard=True))
         
         case menuFlags.SELECT_ENGINE:
             buttons = []
@@ -139,7 +149,7 @@ async def printMessageWithMenu(message: str, update: Update, context: ContextTyp
                 buttons.append(["❌ CIGU18"])
             buttons.append(["⬅️ Back"])
             
-            await update.message.reply_text(message, reply_markup=ReplyKeyboardMarkup(buttons, resize_keyboard=True))
+            await sendMsg(message, ReplyKeyboardMarkup(buttons, resize_keyboard=True))
 
         case menuFlags.SELECT_REGION_P1:
             buttonsFirstRow = []
@@ -156,7 +166,7 @@ async def printMessageWithMenu(message: str, update: Update, context: ContextTyp
                 else:
                     buttonsSecondRow.append(f"❌ {region}")
             
-            await update.message.reply_text(message, reply_markup=ReplyKeyboardMarkup([buttonsFirstRow, buttonsSecondRow, ["⬅️ Back (Main Menu)", "➡️ Next Page (2/4)"]], resize_keyboard=True))
+            await sendMsg(message, ReplyKeyboardMarkup([buttonsFirstRow, buttonsSecondRow, ["⬅️ Back (Main Menu)", "➡️ Next Page (2/4)"]], resize_keyboard=True))
 
         case menuFlags.SELECT_REGION_P2:
             buttonsFirstRow = []
@@ -173,7 +183,7 @@ async def printMessageWithMenu(message: str, update: Update, context: ContextTyp
                 else:
                     buttonsSecondRow.append(f"❌ {region}")
             
-            await update.message.reply_text(message, reply_markup=ReplyKeyboardMarkup([buttonsFirstRow, buttonsSecondRow, ["⬅️ Back to 1° page", "➡️ Next Page (3/4)"]], resize_keyboard=True))
+            await sendMsg(message, ReplyKeyboardMarkup([buttonsFirstRow, buttonsSecondRow, ["⬅️ Back to 1° page", "➡️ Next Page (3/4)"]], resize_keyboard=True))
 
         case menuFlags.SELECT_REGION_P3:
             buttonsFirstRow = []
@@ -190,7 +200,7 @@ async def printMessageWithMenu(message: str, update: Update, context: ContextTyp
                 else:
                     buttonsSecondRow.append(f"❌ {region}")
             
-            await update.message.reply_text(message, reply_markup=ReplyKeyboardMarkup([buttonsFirstRow, buttonsSecondRow, ["⬅️ Back to 2° page", "➡️ Next Page (4/4)"]], resize_keyboard=True))
+            await sendMsg(message, ReplyKeyboardMarkup([buttonsFirstRow, buttonsSecondRow, ["⬅️ Back to 2° page", "➡️ Next Page (4/4)"]], resize_keyboard=True))
 
         case menuFlags.SELECT_REGION_P4:
             buttonsFirstRow = []
@@ -200,10 +210,10 @@ async def printMessageWithMenu(message: str, update: Update, context: ContextTyp
                 else:
                     buttonsFirstRow.append(f"❌ {region}")
             
-            await update.message.reply_text(message, reply_markup=ReplyKeyboardMarkup([buttonsFirstRow, ["⬅️ Back to 3° page"]], resize_keyboard=True))
+            await sendMsg(message, ReplyKeyboardMarkup([buttonsFirstRow, ["⬅️ Back to 3° page"]], resize_keyboard=True))
 
         case _:
-            await update.message.reply_text("Command not recognized.", resize_keyboard=True)
+            await sendMsg("Command not recognized.")
             return
 
     return
@@ -214,7 +224,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     saveChatID(str(update.message.chat_id))
 
-    await printMessageWithMenu("Telegram bot interface for [TNcontrol](https://github.com/AndreaStefanh/TNcontrol)", update, context)
+    await printMessageWithMenu("Telegram bot interface for [TNcontrol](https://github.com/AndreaStefanh/TNcontrol)")
     return
 
 async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -235,23 +245,23 @@ async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                     output = f"ℹ️ The query name is: {settings.queryName}\n"
                 output += "Please enter the query name:"
 
-                await printMessageWithMenu(output, update, context)
+                await printMessageWithMenu(output)
             
             case "⚙️ Engine":
                 selectedMenu = menuFlags.SELECT_ENGINE
 
-                await printMessageWithMenu("ℹ️ Current engine settings:", update, context)
+                await printMessageWithMenu("ℹ️ Current engine settings:")
 
             case "▶️ Run":
                 if settings.queryName == "":
-                    await printMessageWithMenu("⚠️ Please enter a query name before running the bot.", update, context)
+                    await printMessageWithMenu("⚠️ Please enter a query name before running the bot.")
                     return
                 
                 if settings.selectedEngine == engineFlags.NONE:
-                    await printMessageWithMenu("⚠️ Please select at least one engine before running the bot.", update, context)
+                    await printMessageWithMenu("⚠️ Please select at least one engine before running the bot.")
                     return
                 
-                await update.message.reply_text("⏳ Loading...")
+                await sendMsg("⏳ Loading...")
 
                 try:
                     result = await engine.start(logTG())
@@ -303,56 +313,56 @@ async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                         msg += f"🇮🇹 *FSI ID:* {escapeMarkdown(quialified[0])}\n"
                         msg += f"🏢 *Club ID:* {escapeMarkdown(quialified[3])}\n"
                 
-                await printMessageWithMenu(msg, update, context)
+                await printMessageWithMenu(msg)
 
             case "🗺️ Select Regions":
                 selectedMenu = menuFlags.SELECT_REGION_P1
 
-                await printMessageWithMenu("ℹ️ Current italian regions to query for the vesus engine. Page 1:", update, context)
+                await printMessageWithMenu("ℹ️ Current italian regions to query for the vesus engine. Page 1:")
             
             case _:
-                await printMessageWithMenu(f"⚠️ Command not recognized '{update.message.text}'.", update, context)
+                await printMessageWithMenu(f"⚠️ Command not recognized '{update.message.text}'.")
 
     elif selectedMenu == menuFlags.QUERY_NAME:
         match update.message.text:
 
             case "⬅️ Back":
                 selectedMenu = menuFlags.MAIN_MENU
-                await printMessageWithMenu("⬅️ Back to main menu", update, context)
+                await printMessageWithMenu("⬅️ Back to main menu")
 
             case _:
                 settings.queryName = update.message.text
                 selectedMenu = menuFlags.MAIN_MENU
-                await printMessageWithMenu(f"ℹ️ Query name set to '{settings.queryName}'.", update, context)
+                await printMessageWithMenu(f"ℹ️ Query name set to '{settings.queryName}'.")
     
     elif selectedMenu == menuFlags.SELECT_ENGINE:
         match update.message.text:
 
             case "✅ Vesus" | "❌ Vesus":
                 settings.selectedEngine ^= engineFlags.VESUS
-                await printMessageWithMenu("ℹ️ Vesus engine toggled.", update, context)
+                await printMessageWithMenu("ℹ️ Vesus engine toggled.")
 
             case "✅ CIGU18" | "❌ CIGU18":
                 settings.selectedEngine ^= engineFlags.CIGU18
-                await printMessageWithMenu("ℹ️ CIGU18 engine toggled.", update, context)
+                await printMessageWithMenu("ℹ️ CIGU18 engine toggled.")
 
             case "⬅️ Back":
                 selectedMenu = menuFlags.MAIN_MENU
-                await printMessageWithMenu("⬅️ Back to main menu", update, context)
+                await printMessageWithMenu("⬅️ Back to main menu")
 
             case _:
-                await printMessageWithMenu(f"⚠️ Command not recognized '{update.message.text}'.", update, context)
+                await printMessageWithMenu(f"⚠️ Command not recognized '{update.message.text}'.")
     
     elif selectedMenu == menuFlags.SELECT_REGION_P1:
         match update.message.text:
 
             case "➡️ Next Page (2/4)":
                 selectedMenu = menuFlags.SELECT_REGION_P2
-                await printMessageWithMenu("ℹ️ Current italian regions to query for the vesus engine. Page 2:", update, context)
+                await printMessageWithMenu("ℹ️ Current italian regions to query for the vesus engine. Page 2:")
 
             case "⬅️ Back (Main Menu)":
                 selectedMenu = menuFlags.MAIN_MENU
-                await printMessageWithMenu("⬅️ Back to main menu", update, context)
+                await printMessageWithMenu("⬅️ Back to main menu")
             
             case _:
                 msg = update.message.text
@@ -363,30 +373,30 @@ async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 elif msg.startswith("❌ "):
                     region = msg.replace("❌ ", "").strip()
                 else:
-                    await printMessageWithMenu(f"⚠️ Command not recognized '{update.message.text}'.", update, context)
+                    await printMessageWithMenu(f"⚠️ Command not recognized '{update.message.text}'.")
                     return
 
                 if region not in REGIONS.keys():
-                    await printMessageWithMenu(f"⚠️ Command not recognized '{update.message.text}'.", update, context)
+                    await printMessageWithMenu(f"⚠️ Command not recognized '{update.message.text}'.")
                     return
 
                 if region in settings.vesusRegionsToQuery:
                     settings.vesusRegionsToQuery.remove(region)
-                    await printMessageWithMenu(f"ℹ️ {region} region removed from the query.", update, context)
+                    await printMessageWithMenu(f"ℹ️ {region} region removed from the query.")
                 else:
                     settings.vesusRegionsToQuery.append(region)
-                    await printMessageWithMenu(f"ℹ️ {region} region added to the query.", update, context)
+                    await printMessageWithMenu(f"ℹ️ {region} region added to the query.")
         
     elif selectedMenu == menuFlags.SELECT_REGION_P2:
         match update.message.text:
 
             case "➡️ Next Page (3/4)":
                 selectedMenu = menuFlags.SELECT_REGION_P3
-                await printMessageWithMenu("ℹ️ Current italian regions to query for the vesus engine. Page 3:", update, context)
+                await printMessageWithMenu("ℹ️ Current italian regions to query for the vesus engine. Page 3:")
 
             case "⬅️ Back to 1° page":
                 selectedMenu = menuFlags.SELECT_REGION_P1
-                await printMessageWithMenu("⬅️ Back to the first page", update, context)
+                await printMessageWithMenu("⬅️ Back to the first page")
 
             case _:
                 msg = update.message.text
@@ -397,30 +407,30 @@ async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 elif msg.startswith("❌ "):
                     region = msg.replace("❌ ", "").strip()
                 else:
-                    await printMessageWithMenu(f"⚠️ Command not recognized '{update.message.text}'.", update, context)
+                    await printMessageWithMenu(f"⚠️ Command not recognized '{update.message.text}'.")
                     return
 
                 if region not in REGIONS.keys():
-                    await printMessageWithMenu(f"⚠️ Command not recognized '{update.message.text}'.", update, context)
+                    await printMessageWithMenu(f"⚠️ Command not recognized '{update.message.text}'.")
                     return
 
                 if region in settings.vesusRegionsToQuery:
                     settings.vesusRegionsToQuery.remove(region)
-                    await printMessageWithMenu(f"ℹ️ {region} region removed from the query.", update, context)
+                    await printMessageWithMenu(f"ℹ️ {region} region removed from the query.")
                 else:
                     settings.vesusRegionsToQuery.append(region)
-                    await printMessageWithMenu(f"ℹ️ {region} region added to the query.", update, context)
+                    await printMessageWithMenu(f"ℹ️ {region} region added to the query.")
     
     elif selectedMenu == menuFlags.SELECT_REGION_P3:
         match update.message.text:
 
             case "➡️ Next Page (4/4)":
                 selectedMenu = menuFlags.SELECT_REGION_P4
-                await printMessageWithMenu("ℹ️ Current italian regions to query for the vesus engine. Page 4:", update, context)
+                await printMessageWithMenu("ℹ️ Current italian regions to query for the vesus engine. Page 4:")
             
             case "⬅️ Back to 2° page":
                 selectedMenu = menuFlags.SELECT_REGION_P2
-                await printMessageWithMenu("⬅️ Back to the second page", update, context)
+                await printMessageWithMenu("⬅️ Back to the second page")
             
             case _:
                 msg = update.message.text
@@ -431,26 +441,26 @@ async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 elif msg.startswith("❌ "):
                     region = msg.replace("❌ ", "").strip()
                 else:
-                    await printMessageWithMenu(f"⚠️ Command not recognized '{update.message.text}'.", update, context)
+                    await printMessageWithMenu(f"⚠️ Command not recognized '{update.message.text}'.")
                     return
 
                 if region not in REGIONS.keys():
-                    await printMessageWithMenu(f"⚠️ Command not recognized '{update.message.text}'.", update, context)
+                    await printMessageWithMenu(f"⚠️ Command not recognized '{update.message.text}'.")
                     return
 
                 if region in settings.vesusRegionsToQuery:
                     settings.vesusRegionsToQuery.remove(region)
-                    await printMessageWithMenu(f"ℹ️ {region} region removed from the query.", update, context)
+                    await printMessageWithMenu(f"ℹ️ {region} region removed from the query.")
                 else:
                     settings.vesusRegionsToQuery.append(region)
-                    await printMessageWithMenu(f"ℹ️ {region} region added to the query.", update, context)
+                    await printMessageWithMenu(f"ℹ️ {region} region added to the query.")
     
     elif selectedMenu == menuFlags.SELECT_REGION_P4:
         match update.message.text:
 
             case "⬅️ Back to 3° page":
                 selectedMenu = menuFlags.SELECT_REGION_P3
-                await printMessageWithMenu("⬅️ Back to the third page", update, context)
+                await printMessageWithMenu("⬅️ Back to the third page")
 
             case _:
                 msg = update.message.text
@@ -461,22 +471,22 @@ async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 elif msg.startswith("❌ "):
                     region = msg.replace("❌ ", "").strip()
                 else:
-                    await printMessageWithMenu(f"⚠️ Command not recognized '{update.message.text}'.", update, context)
+                    await printMessageWithMenu(f"⚠️ Command not recognized '{update.message.text}'.")
                     return
 
                 if region not in REGIONS.keys():
-                    await printMessageWithMenu(f"⚠️ Command not recognized '{update.message.text}'.", update, context)
+                    await printMessageWithMenu(f"⚠️ Command not recognized '{update.message.text}'.")
                     return
 
                 if region in settings.vesusRegionsToQuery:
                     settings.vesusRegionsToQuery.remove(region)
-                    await printMessageWithMenu(f"ℹ️ {region} region removed from the query.", update, context)
+                    await printMessageWithMenu(f"ℹ️ {region} region removed from the query.")
                 else:
                     settings.vesusRegionsToQuery.append(region)
-                    await printMessageWithMenu(f"ℹ️ {region} region added to the query.", update, context)
+                    await printMessageWithMenu(f"ℹ️ {region} region added to the query.")
 
     else:
-        await printMessageWithMenu("⚠️ Command not recognized.", update, context)
+        await printMessageWithMenu("⚠️ Command not recognized.")
 
     return
 
