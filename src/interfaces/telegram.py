@@ -18,8 +18,11 @@ class menuFlags(IntFlag):
     SELECT_REGION_P2 = 4
     SELECT_REGION_P3 = 5
     SELECT_REGION_P4 = 6
+    AUTOMATED_RUN = 7
+    SET_TIME = 8
 selectedMenu: menuFlags = menuFlags.MAIN_MENU
 
+app = None
 bot = None
 savedChatIDs = []
 MAX_LENGTH = 4000
@@ -128,10 +131,10 @@ async def printMessageWithMenu(message: str) -> None:
 
             if settings.selectedEngine & engineFlags.VESUS:
                 for msg in msgBlocks:
-                    await sendMsg(message, ReplyKeyboardMarkup([["👤 Query", "⚙️ Engine", "🗺️ Select Regions"], ["▶️ Run"]], resize_keyboard=True))
+                    await sendMsg(message, ReplyKeyboardMarkup([["👤 Query", "⚙️ Engine", "🗺️ Select Regions"], ["🔁 Automated Run", "▶️ Run"]], resize_keyboard=True))
             else:
                 for msg in msgBlocks:
-                    await sendMsg(message, ReplyKeyboardMarkup([["👤 Query", "⚙️ Engine"], ["▶️ Run"]], resize_keyboard=True))
+                    await sendMsg(message, ReplyKeyboardMarkup([["👤 Query", "⚙️ Engine"], ["🔁 Automated Run", "▶️ Run"]], resize_keyboard=True))
 
         case menuFlags.QUERY_NAME:
             await sendMsg(message, ReplyKeyboardMarkup([["⬅️ Back"]], resize_keyboard=True))
@@ -212,6 +215,18 @@ async def printMessageWithMenu(message: str) -> None:
             
             await sendMsg(message, ReplyKeyboardMarkup([buttonsFirstRow, ["⬅️ Back to 3° page"]], resize_keyboard=True))
 
+        case menuFlags.AUTOMATED_RUN:
+            buttonsFirstRow = ["🕓 Set time"]
+            if settings.telegramAutoRun is True:
+                buttonsFirstRow.append("✅ Feature is enable")
+            else:
+                buttonsFirstRow.append("❌ Feature is disable")
+            
+            await sendMsg(message, ReplyKeyboardMarkup([buttonsFirstRow, ["⬅️ Back"]], resize_keyboard=True))
+        
+        case menuFlags.SET_TIME:
+            await sendMsg(message, ReplyKeyboardMarkup([["⬅️ Back"]], resize_keyboard=True))
+
         case _:
             await sendMsg("Command not recognized.")
             return
@@ -226,6 +241,69 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     await printMessageWithMenu("Telegram bot interface for [TNcontrol](https://github.com/AndreaStefanh/TNcontrol)")
     return
+
+async def runCommand(context: Optional[ContextTypes.DEFAULT_TYPE] = None) -> None:
+    if settings.queryName == "":
+        await printMessageWithMenu("⚠️ Please enter a query name before running the bot.")
+        return
+    
+    if settings.selectedEngine == engineFlags.NONE:
+        await printMessageWithMenu("⚠️ Please select at least one engine before running the bot.")
+        return
+    
+    await sendMsg("⏳ Loading...")
+         
+    try:
+        result = await engine.start(logTG())
+    except Exception as e:
+        errorDetails = traceback.format_exc()
+        await logTG.error(f"Error while running the bot: {e}.\nSee errorLogs file to see more informations.", stacktrace = errorDetails)
+        return
+    
+    msg = ""
+          
+    if settings.selectedEngine & engineFlags.VESUS:
+        msg = f"Using the keyword: '{escapeMarkdown(settings.queryName)}' for seeing the Vesus pre-registrations, I found the following tournaments:\n\n"
+        vesusResult = result[0]
+           
+        for tournament in vesusResult:
+            for shortKey in tournament:
+                msg += f"🔹 *Tournament Name:* {escapeMarkdown(tournament[shortKey]['tornument'])}\n"
+                msg += f"📍 *Place:* {escapeMarkdown(tournament[shortKey]['location'])}\n"
+                msg += f"📅 *End of registration:* {datetime.datetime.fromisoformat(tournament[shortKey]['endRegistration'].replace("Z", "+00:00")).strftime("%d %B %Y, %H:%M")} UTC\n"
+                msg += f"🎯 *Start of tournament:* {datetime.datetime.fromisoformat(tournament[shortKey]['startTornument'].replace("Z", "+00:00")).strftime("%d %B %Y, %H:%M")} UTC\n"
+                msg += f"🔗 [Tournament Link](https://www.vesus.org/tournament/{shortKey})\n"
+                msg += f"👥 *Who There:*\n"
+                for names in tournament[shortKey]["name"]:
+                    msg += f"  - {escapeMarkdown(names)}\n"
+                msg += "\n"
+               
+    if settings.selectedEngine & engineFlags.CIGU18:
+        if settings.selectedEngine & engineFlags.VESUS:
+            GIGResult = result[1]
+        else:
+            GIGResult = result[0]
+         
+        msg += f"Using the keyword: '{escapeMarkdown(settings.queryName)}' in the qualified CIGU18 FSI database, I found:\n"
+        
+        for quialified in GIGResult:
+            msg += "\n"
+            msg += f"👤 *Name:* {escapeMarkdown(quialified[1])}\n"
+               
+            for k, v in REGIONS.items():
+                if v == quialified[5]:
+                    msg += f"🗺️ *Region:* {escapeMarkdown(k)}\n"
+                    break
+            #msg += f" 🗺️ *Region:* {escapeMarkdown(quialified[5])}\n"
+           
+            msg += f"📍 *Province:* {escapeMarkdown(quialified[4])}\n"
+            bdate = quialified[2].split("-")
+            msg += f"🎂 *Birthdate:* {bdate[2]} {calendar.month_name[int(bdate[1])]} {bdate[0]}\n"
+            msg += f"⚧️ *Sex:* {escapeMarkdown(quialified[6])}\n"
+            msg += f"🇮🇹 *FSI ID:* {escapeMarkdown(quialified[0])}\n"
+            msg += f"🏢 *Club ID:* {escapeMarkdown(quialified[3])}\n"
+          
+    await printMessageWithMenu(msg)
 
 async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     global selectedMenu
@@ -253,73 +331,18 @@ async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 await printMessageWithMenu("ℹ️ Current engine settings:")
 
             case "▶️ Run":
-                if settings.queryName == "":
-                    await printMessageWithMenu("⚠️ Please enter a query name before running the bot.")
-                    return
-                
-                if settings.selectedEngine == engineFlags.NONE:
-                    await printMessageWithMenu("⚠️ Please select at least one engine before running the bot.")
-                    return
-                
-                await sendMsg("⏳ Loading...")
-
-                try:
-                    result = await engine.start(logTG())
-                except Exception as e:
-                    errorDetails = traceback.format_exc()
-                    await logTG.error(f"Error while running the bot: {e}.\nSee errorLogs file to see more informations.", stacktrace = errorDetails)
-                    return
-                
-                msg = ""
-
-                if settings.selectedEngine & engineFlags.VESUS:
-                    msg = f"Using the keyword: '{escapeMarkdown(settings.queryName)}' for seeing the Vesus pre-registrations, I found the following tournaments:\n\n"
-                    vesusResult = result[0]
-
-                    for tournament in vesusResult:
-                        for shortKey in tournament:
-                            msg += f"🔹 *Tournament Name:* {escapeMarkdown(tournament[shortKey]['tornument'])}\n"
-                            msg += f"📍 *Place:* {escapeMarkdown(tournament[shortKey]['location'])}\n"
-                            msg += f"📅 *End of registration:* {datetime.datetime.fromisoformat(tournament[shortKey]['endRegistration'].replace("Z", "+00:00")).strftime("%d %B %Y, %H:%M")} UTC\n"
-                            msg += f"🎯 *Start of tournament:* {datetime.datetime.fromisoformat(tournament[shortKey]['startTornument'].replace("Z", "+00:00")).strftime("%d %B %Y, %H:%M")} UTC\n"
-                            msg += f"🔗 [Tournament Link](https://www.vesus.org/tournament/{shortKey})\n"
-                            msg += f"👥 *Who There:*\n"
-                            for names in tournament[shortKey]["name"]:
-                                msg += f"  - {escapeMarkdown(names)}\n"
-                            msg += "\n"
-                
-                if settings.selectedEngine & engineFlags.CIGU18:
-                    if settings.selectedEngine & engineFlags.VESUS:
-                        GIGResult = result[1]
-                    else:
-                        GIGResult = result[0]
-                    
-                    msg += f"Using the keyword: '{escapeMarkdown(settings.queryName)}' in the qualified CIGU18 FSI database, I found:\n"
-
-                    for quialified in GIGResult:
-                        msg += "\n"
-                        msg += f"👤 *Name:* {escapeMarkdown(quialified[1])}\n"
-
-                        for k, v in REGIONS.items():
-                            if v == quialified[5]:
-                                msg += f"🗺️ *Region:* {escapeMarkdown(k)}\n"
-                                break
-                        #msg += f" 🗺️ *Region:* {escapeMarkdown(quialified[5])}\n"
-
-                        msg += f"📍 *Province:* {escapeMarkdown(quialified[4])}\n"
-                        bdate = quialified[2].split("-")
-                        msg += f"🎂 *Birthdate:* {bdate[2]} {calendar.month_name[int(bdate[1])]} {bdate[0]}\n"
-                        msg += f"⚧️ *Sex:* {escapeMarkdown(quialified[6])}\n"
-                        msg += f"🇮🇹 *FSI ID:* {escapeMarkdown(quialified[0])}\n"
-                        msg += f"🏢 *Club ID:* {escapeMarkdown(quialified[3])}\n"
-                
-                await printMessageWithMenu(msg)
+                await runCommand()
 
             case "🗺️ Select Regions":
                 selectedMenu = menuFlags.SELECT_REGION_P1
 
                 await printMessageWithMenu("ℹ️ Current italian regions to query for the vesus engine. Page 1:")
             
+            case "🔁 Automated Run":
+                selectedMenu = menuFlags.AUTOMATED_RUN
+
+                await printMessageWithMenu("ℹ️ Current automated run settings")
+                
             case _:
                 await printMessageWithMenu(f"⚠️ Command not recognized '{update.message.text}'.")
 
@@ -485,6 +508,49 @@ async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                     settings.vesusRegionsToQuery.append(region)
                     await printMessageWithMenu(f"ℹ️ {region} region added to the query.")
 
+    elif selectedMenu == menuFlags.AUTOMATED_RUN:
+        match update.message.text:
+
+            case "⬅️ Back":
+                selectedMenu = menuFlags.MAIN_MENU
+                await printMessageWithMenu("⬅️ Back to main menu")
+
+            case "🕓 Set time":
+                selectedMenu = menuFlags.SET_TIME
+                await printMessageWithMenu(f"ℹ️ The time for the automatic execution is set to {settings.telegramAutoRunTime.strftime("%H:%M")} UTC.\nTo set a new one use the format HH:MM.")
+
+            case "✅ Feature is enable" | "❌ Feature is disable":
+                if settings.telegramAutoRun is True:
+                    settings.telegramAutoRun = False
+                    # TODO: Make this works
+                    app.job_queue.scheduler.remove_job("automatedRun") # WARNING: this dosen't work
+
+                    await printMessageWithMenu("ℹ️ Automated run feature is disable")
+                else:
+                    settings.telegramAutoRun = True
+                    app.job_queue.run_daily(runCommand, time = settings.telegramAutoRunTime, name = "automatedRun")
+
+                    await printMessageWithMenu("ℹ️ Automated run feature is enable")
+
+            case _:
+                await printMessageWithMenu(f"⚠️ Command not recognized '{update.message.text}'.")
+    
+    elif selectedMenu == menuFlags.SET_TIME:
+        match update.message.text:
+
+            case "⬅️ Back":
+                selectedMenu = menuFlags.AUTOMATED_RUN
+                await printMessageWithMenu("⬅️ Back to the automated run menu")
+            
+            case _:
+                try:
+                    settings.telegramAutoRunTime = datetime.datetime.strptime(update.message.text, "%H:%M")
+                    selectedMenu = menuFlags.AUTOMATED_RUN
+
+                    await printMessageWithMenu("ℹ️ The time is set correctly")
+                except ValueError:
+                    await printMessageWithMenu(f"⚠️ '{update.message.text}' it is not a correct time formatted HH:MM")
+
     else:
         await printMessageWithMenu("⚠️ Command not recognized.")
 
@@ -492,6 +558,7 @@ async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 def main() -> None:
     global bot
+    global app
 
     if settings.vesusRegionsToQuery == [] or settings.vesusRegionsToQuery == [""]:
         for region in REGIONS.keys():

@@ -49,6 +49,8 @@ class settings:
     settingsFile = "settings.json"
     interface: interfaces = interfaces.BASIC_UI
     telegramAPIKey = ""
+    telegramAutoRun = False
+    telegramAutoRunTime = datetime.time(19, 00)
 
 REGIONS = {
     "Abruzzo":                  "ABR", 
