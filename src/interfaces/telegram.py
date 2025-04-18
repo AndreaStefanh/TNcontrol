@@ -302,7 +302,7 @@ async def runCommand(context: Optional[ContextTypes.DEFAULT_TYPE] = None) -> Non
             msg += f"🎂 *Birthdate:* {bdate[2]} {calendar.month_name[int(bdate[1])]} {bdate[0]}\n"
             msg += f"⚧️ *Sex:* {escapeMarkdown(quialified[6])}\n"
             msg += f"🇮🇹 *FSI ID:* {escapeMarkdown(quialified[0])}\n"
-            msg += f"🏢 *Club ID:* {escapeMarkdown(quialified[3])}\n"
+            msg += f"🏢 *Club ID:* [{escapeMarkdown(quialified[3])}](https://www.federscacchi.com/fsi/index.php/struttura/societa?idx={escapeMarkdown(quialified[3])}&anno=2025&ric=1)\n"
           
     await printMessageWithMenu(msg)
 
