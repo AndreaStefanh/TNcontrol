@@ -3,6 +3,7 @@ import datetime
 import calendar
 from typing import Optional
 from enum import IntFlag
+from apscheduler.jobstores.base import JobLookupError
 
 from telegram import Bot, error, Update, ReplyKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters
@@ -522,10 +523,22 @@ async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             case "✅ Feature is enable" | "❌ Feature is disable":
                 if settings.telegramAutoRun is True:
                     settings.telegramAutoRun = False
-                    # TODO: Make this works
-                    app.job_queue.scheduler.remove_job("automatedRun") # WARNING: this dosen't work
 
-                    await printMessageWithMenu("ℹ️ Automated run feature is disable")
+                    removeJob = None
+                    for job in app.job_queue.scheduler.get_jobs():
+                        if job.name == "automatedRun":
+                            removeJob = job
+                            break
+                    
+                    if removeJob is not None:
+                        try:
+                            app.job_queue.scheduler.remove_job(removeJob.id)
+                            await printMessageWithMenu("ℹ️ Automated run feature is disable")
+                        except JobLookupError:
+                            await printMessageWithMenu("⚠️ Failed to remove the automated run job.")
+                    else:
+                        await printMessageWithMenu("⚠️ Automated run job not found. It might already be disabled.")
+
                 else:
                     settings.telegramAutoRun = True
                     app.job_queue.run_daily(runCommand, time = settings.telegramAutoRunTime, name = "automatedRun")
