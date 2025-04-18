@@ -588,6 +588,9 @@ def main() -> None:
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handler))
 
+    if settings.telegramAutoRun is True:
+        app.job_queue.run_daily(runCommand, time = settings.telegramAutoRunTime, name = "automatedRun")
+
     print("Telegram bot started.")
 
     app.run_polling()

@@ -129,6 +129,18 @@ def loadSettings() -> None:
                         exit(-1)
 
                     settings.logApiRequests = bool(value)
+                elif key == "telegramAutoRun":
+                    if type(value) is not bool:
+                        print(f"Error: '{key}' must be a boolean")
+                        exit(-1)
+                    
+                    settings.telegramAutoRun = bool(value)
+                elif key == "autoRunTime":
+                    try:
+                        settings.telegramAutoRunTime = datetime.datetime.strptime(value, "%H:%M")
+                    except ValueError:
+                        print(f"Error: '{key}' isn't formatted in the HH:MM format")
+                        exit(-1)
                 else:
                     print(f"Error: '{key}' is not a valid setting")
                     exit(-1)
