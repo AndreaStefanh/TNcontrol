@@ -63,7 +63,7 @@ def printResult(result: List[List[Optional[Dict[str, Dict[str, str | List[str]]]
             outputStr += f" FSI ID: {quialified[0]}\n"
             outputStr += f" FSI Info: https://www.federscacchi.com/fsi/index.php/struttura/tesserati?&idx={quialified[0]}&ric=1\n"
             outputStr += f" Club ID: {quialified[3]}\n"
-            outputStr += f" Club Info: https://www.federscacchi.com/fsi/index.php/struttura/societa?idx={quialified[3]}&anno=2025&ric=1\n"
+            outputStr += f" Club Info: https://www.federscacchi.com/fsi/index.php/struttura/societa?idx={quialified[3]}&anno={datetime.datetime.now().year}&ric=1\n"
     
     print(f"\r{outputStr}", end="", flush=True)
     return
