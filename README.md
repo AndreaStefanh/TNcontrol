@@ -39,18 +39,32 @@ And follow the instructions of the cli.
 
 ### "Advanced" usage
 
-If you want to have more granularity on TNcontrol you can use the command arguments to select if you want to query only on CIGU18 or on Vesus or you can select the Italian regions on which to query
+If you want to have more granularity in your settings:
+
+```console
+$ python3 ./main.py --advanced
+```
+
+And follow the instructions of the cli.
+
+---
+
+Or you can use the command arguments:
 
 ```console
 $ python3 ./main.py --name=stefan --engine=VES --region=LAZ,CAL
 # This command will search only on vesus all the people that contain stefan in the name in the regions of lazio and calabria
 ```
 
+---
+
 If you want to use TNcontrol with the telegram interface just create a bot with [@BotFather](https://telegram.me/BotFather) and take the key then pass this command to the server
 
 ```console
 $ python3 ./main.py --telegram=YOUR_API_KEY_GOES_HERE
 ```
+
+---
 
 You can also create a **settings.json** file in the program root to keep your settings.
 ```json5
@@ -94,5 +108,4 @@ You can also create a **settings.json** file in the program root to keep your se
   - [ ] Add proxy support so ip address doesn't timeout
 
 - For the terminal interface
-  - [ ] Improve the cli and program argument parameters
   - [ ] Add support to a tui interface
