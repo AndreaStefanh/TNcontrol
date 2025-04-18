@@ -132,10 +132,10 @@ async def printMessageWithMenu(message: str) -> None:
 
             if settings.selectedEngine & engineFlags.VESUS:
                 for msg in msgBlocks:
-                    await sendMsg(message, ReplyKeyboardMarkup([["👤 Query", "⚙️ Engine", "🗺️ Select Regions"], ["🔁 Automated Run", "▶️ Run"]], resize_keyboard=True))
+                    await sendMsg(msg, ReplyKeyboardMarkup([["👤 Query", "⚙️ Engine", "🗺️ Select Regions"], ["🔁 Automated Run", "▶️ Run"]], resize_keyboard=True))
             else:
                 for msg in msgBlocks:
-                    await sendMsg(message, ReplyKeyboardMarkup([["👤 Query", "⚙️ Engine"], ["🔁 Automated Run", "▶️ Run"]], resize_keyboard=True))
+                    await sendMsg(msg, ReplyKeyboardMarkup([["👤 Query", "⚙️ Engine"], ["🔁 Automated Run", "▶️ Run"]], resize_keyboard=True))
 
         case menuFlags.QUERY_NAME:
             await sendMsg(message, ReplyKeyboardMarkup([["⬅️ Back"]], resize_keyboard=True))
