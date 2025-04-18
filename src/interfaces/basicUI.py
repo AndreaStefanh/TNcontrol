@@ -123,7 +123,7 @@ def main() -> None:
         elif selection == "n" or selection == "":
             settings.logApiRequests = False
         else:
-            print(f"ERROR: '{i}' isn't a valid answer")
+            print(f"ERROR: '{selection}' isn't a valid answer")
             exit(-1)
 
 
