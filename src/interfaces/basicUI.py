@@ -78,6 +78,55 @@ def main() -> None:
             print("Please select a name to query...")
             exit(-1)
 
+    if settings.advancedMode is True:
+        
+        print("Select where you want to execute the query by indicating the corresponding number (empty for both)")
+        print("1. Vesus")
+        print("2. CIGU18")
+        selection = input("> ")
+
+        if selection == "1":
+            settings.selectedEngine = engineFlags.VESUS
+        elif selection == "2":
+            settings.selectedEngine = engineFlags.CIGU18
+        elif selection == "":
+            pass
+        else:
+            print(f"ERROR: '{selection}' isn't a valid answer")
+            exit(-1)
+        
+        if settings.selectedEngine & engineFlags.VESUS:
+            print("Select the regions in which to perform the vesus query by indicating the corresponding number separating them with spaces (empty for all)")
+            for i, region in enumerate(REGIONS.keys(), start = 1):
+                print(f"{i}. {region}")
+            
+            selection = input("> ").split(" ")
+            for i in selection:
+
+                try:
+                    i = int(i)
+                except ValueError:
+                    print(f"ERROR: '{i}' isn't a valid answer")
+                    exit(-1)
+                
+                if i > 20 or i < 1:
+                    print(f"ERROR: '{i}' isn't a valid answer")
+                    exit(-1)
+                
+                settings.vesusRegionsToQuery.append(list(REGIONS.keys())[i - 1])
+        
+        print("Do you wanna log requests on the API? [y/N]")
+        selection = input("> ").lower()
+
+        if selection == "y":
+            settings.logApiRequests = True
+        elif selection == "n" or selection == "":
+            settings.logApiRequests = False
+        else:
+            print(f"ERROR: '{i}' isn't a valid answer")
+            exit(-1)
+
+
     if settings.vesusRegionsToQuery == [] or settings.vesusRegionsToQuery == [""]:
         for region in REGIONS.keys():
             settings.vesusRegionsToQuery.append(region)

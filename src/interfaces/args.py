@@ -17,6 +17,7 @@ def parseArgs():
             print("      --engine=<ENG>         Select one or more engines separated by commas to perform the query")
             print("      --region=<REG | ALL>   Select one or more regions separated by commas to perform the query for the vesus engine")
             print("                             (default all enabled --region=ALL)")
+            print("  -a, --advanced             set advanced mode for basicUI")
             print("  -l, --log                  Enable all logging on API requests in the apiLogs.txt file")
             print("      --settings=<FILE.json> Load settings from a file (default settings.json)")
             print("      --available-engines    Show all available engines")
@@ -66,6 +67,9 @@ def parseArgs():
                 else:
                     print(f"Error: '{region}' is not a valid region")
                     exit(-1)
+        
+        elif arg == "-a" or arg == "--advanced":
+            settings.advancedMode = True
 
         elif arg == "-l" or arg == "--log":
             settings.logApiRequests = True

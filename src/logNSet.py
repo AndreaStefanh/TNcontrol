@@ -41,6 +41,7 @@ class interfaces(IntFlag):
     TELEGRAM = 1
 
 class settings:
+    advancedMode = False
     queryName = ""
     selectedEngine: engineFlags = engineFlags.VESUS | engineFlags.CIGU18
     vesusRegionsToQuery = []
