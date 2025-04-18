@@ -3,7 +3,7 @@ import calendar
 import asyncio
 
 from typing import Optional, List, Dict
-from src.logNSet import settings, engineFlags, logger, REGIONS
+from src.logNSet import settings, engineFlags, logger, REGIONS, PROVINCE
 from src.engine import engine
 
 class logBUI(logger):
@@ -56,7 +56,7 @@ def printResult(result: List[List[Optional[Dict[str, Dict[str, str | List[str]]]
                     break
             #outputStr += f" Region: {quialified[5]}\n"
 
-            outputStr += f" Province: {quialified[4]}\n"
+            outputStr += f" Province: {PROVINCE[quialified[4]]}\n"
             bdate = quialified[2].split("-")
             outputStr += f" Birthdate: {bdate[2]} {calendar.month_name[int(bdate[1])]} {bdate[0]}\n"
             outputStr += f" Sex: {"Male" if quialified[6] == "M" else "Female"}\n"

@@ -7,7 +7,7 @@ from apscheduler.jobstores.base import JobLookupError
 
 from telegram import Bot, error, Update, ReplyKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters
-from src.logNSet import settings, logger, engineFlags, REGIONS
+from src.logNSet import settings, logger, engineFlags, REGIONS, PROVINCE
 from src.engine import engine
 
 
@@ -297,7 +297,7 @@ async def runCommand(context: Optional[ContextTypes.DEFAULT_TYPE] = None) -> Non
                     break
             #msg += f" 🗺️ *Region:* {escapeMarkdown(quialified[5])}\n"
            
-            msg += f"📍 *Province:* {escapeMarkdown(quialified[4])}\n"
+            msg += f"📍 *Province:* {escapeMarkdown(PROVINCE[quialified[4]])}\n"
             bdate = quialified[2].split("-")
             msg += f"🎂 *Birthdate:* {bdate[2]} {calendar.month_name[int(bdate[1])]} {bdate[0]}\n"
             msg += f"⚧️ *Sex:* {"Male" if escapeMarkdown(quialified[6]) == "M" else "Female"}\n"
