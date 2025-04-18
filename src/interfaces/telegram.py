@@ -563,6 +563,26 @@ async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                     await printMessageWithMenu("ℹ️ The time is set correctly")
                 except ValueError:
                     await printMessageWithMenu(f"⚠️ '{update.message.text}' it is not a correct time formatted HH:MM")
+                    return
+                
+                if settings.telegramAutoRun == True:
+                    removeJob = None
+                    for job in app.job_queue.scheduler.get_jobs():
+                        if job.name == "automatedRun":
+                            removeJob = job
+                            break
+                    
+                    if removeJob is not None:
+                        try:
+                            app.job_queue.scheduler.remove_job(removeJob.id)
+                        except JobLookupError:
+                            await printMessageWithMenu("⚠️ Failed to remove the automated run job.")
+                    else:
+                        await printMessageWithMenu("⚠️ Automated run job not found. It might already be disabled.")
+                    
+                    app.job_queue.run_daily(runCommand, time = settings.telegramAutoRunTime, name = "automatedRun")
+                    
+                    await printMessageWithMenu("ℹ️ The autorun has been restarted successfully")
 
     else:
         await printMessageWithMenu("⚠️ Command not recognized.")
