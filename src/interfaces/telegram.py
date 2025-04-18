@@ -300,7 +300,7 @@ async def runCommand(context: Optional[ContextTypes.DEFAULT_TYPE] = None) -> Non
             msg += f"📍 *Province:* {escapeMarkdown(quialified[4])}\n"
             bdate = quialified[2].split("-")
             msg += f"🎂 *Birthdate:* {bdate[2]} {calendar.month_name[int(bdate[1])]} {bdate[0]}\n"
-            msg += f"⚧️ *Sex:* {escapeMarkdown(quialified[6])}\n"
+            msg += f"⚧️ *Sex:* {"Male" if escapeMarkdown(quialified[6]) == "M" else "Female"}\n"
             msg += f"🇮🇹 *FSI ID:* [{escapeMarkdown(quialified[0])}](https://www.federscacchi.com/fsi/index.php/struttura/tesserati?&idx={escapeMarkdown(quialified[0])}&ric=1)\n"
             msg += f"🏢 *Club ID:* [{escapeMarkdown(quialified[3])}](https://www.federscacchi.com/fsi/index.php/struttura/societa?idx={escapeMarkdown(quialified[3])}&anno=2025&ric=1)\n"
           

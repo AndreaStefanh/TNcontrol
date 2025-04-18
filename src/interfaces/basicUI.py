@@ -59,7 +59,7 @@ def printResult(result: List[List[Optional[Dict[str, Dict[str, str | List[str]]]
             outputStr += f" Province: {quialified[4]}\n"
             bdate = quialified[2].split("-")
             outputStr += f" Birthdate: {bdate[2]} {calendar.month_name[int(bdate[1])]} {bdate[0]}\n"
-            outputStr += f" Sex: {quialified[6]}\n"
+            outputStr += f" Sex: {"Male" if quialified[6] == "M" else "Female"}\n"
             outputStr += f" FSI ID: {quialified[0]}\n"
             outputStr += f" FSI Info: https://www.federscacchi.com/fsi/index.php/struttura/tesserati?&idx={quialified[0]}&ric=1\n"
             outputStr += f" Club ID: {quialified[3]}\n"
