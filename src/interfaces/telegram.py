@@ -117,9 +117,9 @@ async def sendMsg(message: str, replyMarkup: Optional[ReplyKeyboardMarkup] = Non
 
     for chatID in savedChatIDs:
         if replyMarkup is None:
-            await bot.send_message(chat_id = chatID, text = message, parse_mode = "markdown")
+            await bot.send_message(chat_id = chatID, text = message, parse_mode = "markdown", disable_web_page_preview = True)
         else:
-            await bot.send_message(chat_id = chatID, text = message, parse_mode = "markdown", reply_markup = replyMarkup)
+            await bot.send_message(chat_id = chatID, text = message, parse_mode = "markdown", disable_web_page_preview = True, reply_markup = replyMarkup)
 
     return
 
