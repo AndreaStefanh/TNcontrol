@@ -1,11 +1,11 @@
 import asyncio
 
-from typing import Dict, List, Optional
+from typing import Union, Dict, List
 from src.logNSet import settings, engineFlags, logger
 from src.engine import vesus
 from src.engine import CIGU18
 
-async def start(logInt: logger) -> List[List[Optional[Dict[str, Dict[str, str | List[str]]]] | List[str]]]:
+async def start(logInt: logger) -> Union[List[Dict[str, Dict[str, Union[str, List[str]]]]], List[List[str]]]:
 
     tasks = []
     async with asyncio.TaskGroup() as tg:

@@ -2,7 +2,7 @@ import datetime
 import calendar
 import asyncio
 
-from typing import Optional, List, Dict
+from typing import Optional, Union, List, Dict
 from src.logNSet import settings, engineFlags, logger, REGIONS, PROVINCE
 from src.engine import engine
 
@@ -27,7 +27,7 @@ def takeInput() -> str:
     
     return selection
 
-def printResult(result: List[List[Optional[Dict[str, Dict[str, str | List[str]]]] | List[str]]]) -> None:
+def printResult(result: Union[List[Dict[str, Dict[str, Union[str, List[str]]]]], List[List[str]]]) -> None:
 
     outputStr = ""
 

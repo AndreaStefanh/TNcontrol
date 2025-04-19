@@ -3,7 +3,7 @@ import aiohttp
 import json
 import re
 
-from typing import Optional, Dict, List, Any
+from typing import Union, Dict, List, Any
 from src.logNSet import settings, logger
 
 ADMIN1ID = {
@@ -105,7 +105,7 @@ async def getShortKeys(admin1Id: str, logInt: logger) -> List[str]:
     
     return shortKeys
 
-async def getTournamentInfo(shortKey: str, name: str, logInt: logger) -> Optional[Dict[str, Dict[str, str | List[str]]]]:
+async def getTournamentInfo(shortKey: str, name: str, logInt: logger) -> Dict[str, Dict[str, Union[str, List[str]]]]:
     tournamentInfo = await requestToAPI(logInt, {
         "variables": {
             "shortKey": shortKey,
@@ -137,7 +137,7 @@ async def getTournamentInfo(shortKey: str, name: str, logInt: logger) -> Optiona
     finally:
         return players
 
-async def query(logInt: logger) -> List[Dict[str, Dict[str, str | List[str]]]]:
+async def query(logInt: logger) -> List[Dict[str, Dict[str, Union[str, List[str]]]]]:
     tasks = []
     async with asyncio.TaskGroup() as tg:
         for region in settings.vesusRegionsToQuery:
