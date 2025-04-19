@@ -276,17 +276,20 @@ async def runCommand(context: Optional[ContextTypes.DEFAULT_TYPE] = None) -> Non
         msg = f"Using the keyword: '{escapeMarkdown(settings.queryName)}' for seeing the Vesus pre-registrations, I found the following tournaments:\n\n"
         vesusResult = result[0]
            
-        for tournament in vesusResult:
-            for shortKey in tournament:
-                msg += f"🔹 *Tournament Name:* {escapeMarkdown(tournament[shortKey]['tornument'])}\n"
-                msg += f"📍 *Place:* {escapeMarkdown(tournament[shortKey]['location'])}\n"
-                msg += f"📅 *End of registration:* {datetime.datetime.fromisoformat(tournament[shortKey]['endRegistration'].replace("Z", "+00:00")).strftime("%d %B %Y, %H:%M")} UTC\n"
-                msg += f"🎯 *Start of tournament:* {datetime.datetime.fromisoformat(tournament[shortKey]['startTornument'].replace("Z", "+00:00")).strftime("%d %B %Y, %H:%M")} UTC\n"
-                msg += f"🔗 [Tournament Link](https://www.vesus.org/tournament/{shortKey})\n"
-                msg += f"👥 *Who There:*\n"
-                for names in tournament[shortKey]["name"]:
-                    msg += f"  - {escapeMarkdown(names)}\n"
-                msg += "\n"
+        if len(vesusResult) > 1:
+            for tournament in vesusResult:
+                for shortKey in tournament:
+                    msg += f"🔹 *Tournament Name:* {escapeMarkdown(tournament[shortKey]['tornument'])}\n"
+                    msg += f"📍 *Place:* {escapeMarkdown(tournament[shortKey]['location'])}\n"
+                    msg += f"📅 *End of registration:* {datetime.datetime.fromisoformat(tournament[shortKey]['endRegistration'].replace("Z", "+00:00")).strftime("%d %B %Y, %H:%M")} UTC\n"
+                    msg += f"🎯 *Start of tournament:* {datetime.datetime.fromisoformat(tournament[shortKey]['startTornument'].replace("Z", "+00:00")).strftime("%d %B %Y, %H:%M")} UTC\n"
+                    msg += f"🔗 [Tournament Link](https://www.vesus.org/tournament/{shortKey})\n"
+                    msg += f"👥 *Who There:*\n"
+                    for names in tournament[shortKey]["name"]:
+                        msg += f"  - {escapeMarkdown(names)}\n"
+                    msg += "\n"
+        else:
+            msg += "Couldn't find anything in vesus engine\n\n"
                
     if settings.selectedEngine & engineFlags.CIGU18:
         if settings.selectedEngine & engineFlags.VESUS:
@@ -296,22 +299,25 @@ async def runCommand(context: Optional[ContextTypes.DEFAULT_TYPE] = None) -> Non
          
         msg += f"Using the keyword: '{escapeMarkdown(settings.queryName)}' in the qualified CIGU18 FSI database, I found:\n"
         
-        for quialified in GIGResult:
-            msg += "\n"
-            msg += f"👤 *Name:* {escapeMarkdown(quialified[1])}\n"
-               
-            for k, v in REGIONS.items():
-                if v == quialified[5]:
-                    msg += f"🗺️ *Region:* {escapeMarkdown(k)}\n"
-                    break
-            #msg += f" 🗺️ *Region:* {escapeMarkdown(quialified[5])}\n"
-           
-            msg += f"📍 *Province:* {escapeMarkdown(PROVINCE[quialified[4]])}\n"
-            bdate = quialified[2].split("-")
-            msg += f"🎂 *Birthdate:* {bdate[2]} {calendar.month_name[int(bdate[1])]} {bdate[0]}\n"
-            msg += f"⚧️ *Sex:* {"Male" if escapeMarkdown(quialified[6]) == "M" else "Female"}\n"
-            msg += f"🇮🇹 *FSI ID:* [{escapeMarkdown(quialified[0])}](https://www.federscacchi.com/fsi/index.php/struttura/tesserati?&idx={escapeMarkdown(quialified[0])}&ric=1)\n"
-            msg += f"🏢 *Club ID:* [{escapeMarkdown(quialified[3])}](https://www.federscacchi.com/fsi/index.php/struttura/societa?idx={escapeMarkdown(quialified[3])}&anno={datetime.datetime.now().year}&ric=1)\n"
+        if len(GIGResult) > 1:
+            for quialified in GIGResult:
+                msg += "\n"
+                msg += f"👤 *Name:* {escapeMarkdown(quialified[1])}\n"
+
+                for k, v in REGIONS.items():
+                    if v == quialified[5]:
+                        msg += f"🗺️ *Region:* {escapeMarkdown(k)}\n"
+                        break
+                #msg += f" 🗺️ *Region:* {escapeMarkdown(quialified[5])}\n"
+
+                msg += f"📍 *Province:* {escapeMarkdown(PROVINCE[quialified[4]])}\n"
+                bdate = quialified[2].split("-")
+                msg += f"🎂 *Birthdate:* {bdate[2]} {calendar.month_name[int(bdate[1])]} {bdate[0]}\n"
+                msg += f"⚧️ *Sex:* {"Male" if escapeMarkdown(quialified[6]) == "M" else "Female"}\n"
+                msg += f"🇮🇹 *FSI ID:* [{escapeMarkdown(quialified[0])}](https://www.federscacchi.com/fsi/index.php/struttura/tesserati?&idx={escapeMarkdown(quialified[0])}&ric=1)\n"
+                msg += f"🏢 *Club ID:* [{escapeMarkdown(quialified[3])}](https://www.federscacchi.com/fsi/index.php/struttura/societa?idx={escapeMarkdown(quialified[3])}&anno={datetime.datetime.now().year}&ric=1)\n"
+        else:
+            msg += "\nCouldn't find anything in CIGU18 engine\n\n"
           
     await printMessageWithMenu(msg)
 
