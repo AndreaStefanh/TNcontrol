@@ -19,6 +19,14 @@ class logBUI(logger):
         await super().error(msg, shouldExit = shouldExit, timestamp = timestamp)
         return
 
+def takeInput() -> str:
+    try:
+        selection = input("> ")
+    except KeyboardInterrupt:
+        exit(0)
+    
+    return selection
+
 def printResult(result: List[List[Optional[Dict[str, Dict[str, str | List[str]]]] | List[str]]]) -> None:
 
     outputStr = ""
@@ -72,7 +80,7 @@ def main() -> None:
 
     if settings.queryName == "":
         print("Select the name to query...")
-        settings.queryName = input("> ")
+        settings.queryName = takeInput()
 
         if settings.queryName == "":
             print("Please select a name to query...")
@@ -83,7 +91,7 @@ def main() -> None:
         print("Select where you want to execute the query by indicating the corresponding number (empty for both)")
         print("1. Vesus")
         print("2. CIGU18")
-        selection = input("> ")
+        selection = takeInput()
 
         if selection == "1":
             settings.selectedEngine = engineFlags.VESUS
@@ -100,23 +108,24 @@ def main() -> None:
             for i, region in enumerate(REGIONS.keys(), start = 1):
                 print(f"{i}. {region}")
             
-            selection = input("> ").split(" ")
+            selection = takeInput().split(" ")
             for i in selection:
 
-                try:
-                    i = int(i)
-                except ValueError:
-                    print(f"ERROR: '{i}' isn't a valid answer")
-                    exit(-1)
-                
-                if i > 20 or i < 1:
-                    print(f"ERROR: '{i}' isn't a valid answer")
-                    exit(-1)
-                
-                settings.vesusRegionsToQuery.append(list(REGIONS.keys())[i - 1])
+                if i != "":
+                    try:
+                        i = int(i)
+                    except ValueError:
+                        print(f"ERROR: '{i}' isn't a valid answer")
+                        exit(-1)
+
+                    if i > 20 or i < 1:
+                        print(f"ERROR: '{i}' isn't a valid answer")
+                        exit(-1)
+
+                    settings.vesusRegionsToQuery.append(list(REGIONS.keys())[i - 1])
         
         print("Do you wanna log requests on the API? [y/N]")
-        selection = input("> ").lower()
+        selection = takeInput().lower()
 
         if selection == "y":
             settings.logApiRequests = True
