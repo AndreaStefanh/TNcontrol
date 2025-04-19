@@ -1,6 +1,7 @@
 import traceback
 import datetime
 import calendar
+import asyncio
 from typing import Optional
 from enum import IntFlag
 from apscheduler.jobstores.base import JobLookupError
@@ -59,6 +60,14 @@ class logTG(logger):
         await super().error(msg, shouldExit = shouldExit, timestamp = timestamp)
         return
 
+
+async def shutdown() -> None:
+    global app
+    
+    if app is not None:
+        await app.stop()
+    
+    #exit(0)
 
 def loadChatID() -> None:
     global savedChatIDs
@@ -602,16 +611,32 @@ def main() -> None:
     if settings.telegramAPIKey == "":
         print("Error: Telegram API key not set")
         exit(-1)
-
+    
+    
     bot = Bot(token=settings.telegramAPIKey)
     app = ApplicationBuilder().token(settings.telegramAPIKey).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handler))
-
+    
     if settings.telegramAutoRun is True:
         app.job_queue.run_daily(runCommand, time = settings.telegramAutoRunTime, name = "automatedRun")
-
+    
     print("Telegram bot started.")
+        
+    try:
+        app.run_polling()
+    except KeyboardInterrupt:
+        # BUG:  This doesn't print if you press ^C once, but it does if you press it twice. WTF
+        # TODO: Try to make this print always (if I have time to do it)
+        print("Shutting down the bot...", flush=True)
+    finally:
+        try:
+            loop = asyncio.get_event_loop()
+            if not loop.is_closed():
+                loop.run_until_complete(shutdown())
+        except Exception as e:
+            print(f"Error during shutdown: {e}")
+        finally:
+            print("Bot has been stopped.", flush=True)
 
-    app.run_polling()
     return
