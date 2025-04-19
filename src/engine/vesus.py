@@ -123,17 +123,25 @@ async def getTournamentInfo(shortKey: str, name: str, logInt: logger) -> Dict[st
     players = {}
 
     try:
-        for player in tournamentInfo["data"]["tournamentUpdate"]["registeredPlayers"]:
-            if re.search(re.escape(name), player["name"], re.IGNORECASE):
-                if not shortKey in players:
-                    players[shortKey] = {
-                        "tornument": tournamentInfo["data"]["tournamentUpdate"]["event"]["name"],
-                        "location": tournamentInfo["data"]["tournamentUpdate"]["event"]["location"],
-                        "endRegistration": tournamentInfo["data"]["tournamentUpdate"]["registrationsEnd"],
-                        "startTornument": tournamentInfo["data"]["tournamentUpdate"]["start"],
-                        "name": []
-                    }
-                players[shortKey]["name"].append(player["name"])
+        nameParts = re.split(r'\s+', name.strip())
+        registeredPlayers = tournamentInfo["data"]["tournamentUpdate"]["registeredPlayers"]
+
+        filteredPlayers = registeredPlayers
+        for part in nameParts:
+            partLower = part.lower()
+            filteredPlayers = [
+                player for player in filteredPlayers
+                if partLower in player["name"].lower()
+            ]
+
+        if filteredPlayers:
+            players[shortKey] = {
+                "tournament": tournamentInfo["data"]["tournamentUpdate"]["event"]["name"],
+                "location": tournamentInfo["data"]["tournamentUpdate"]["event"]["location"],
+                "endRegistration": tournamentInfo["data"]["tournamentUpdate"]["registrationsEnd"],
+                "startTournament": tournamentInfo["data"]["tournamentUpdate"]["start"],
+                "names": [player["name"] for player in filteredPlayers]
+            }
     finally:
         return players
 

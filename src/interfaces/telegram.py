@@ -276,16 +276,16 @@ async def runCommand(context: Optional[ContextTypes.DEFAULT_TYPE] = None) -> Non
         msg = f"Using the keyword: '{escapeMarkdown(settings.queryName)}' for seeing the Vesus pre-registrations, I found the following tournaments:\n\n"
         vesusResult = result[0]
            
-        if len(vesusResult) > 1:
+        if len(vesusResult) >= 1:
             for tournament in vesusResult:
                 for shortKey in tournament:
-                    msg += f"🔹 *Tournament Name:* {escapeMarkdown(tournament[shortKey]['tornument'])}\n"
+                    msg += f"🔹 *Tournament Name:* {escapeMarkdown(tournament[shortKey]['tournament'])}\n"
                     msg += f"📍 *Place:* {escapeMarkdown(tournament[shortKey]['location'])}\n"
                     msg += f"📅 *End of registration:* {datetime.datetime.fromisoformat(tournament[shortKey]['endRegistration'].replace("Z", "+00:00")).strftime("%d %B %Y, %H:%M")} UTC\n"
-                    msg += f"🎯 *Start of tournament:* {datetime.datetime.fromisoformat(tournament[shortKey]['startTornument'].replace("Z", "+00:00")).strftime("%d %B %Y, %H:%M")} UTC\n"
+                    msg += f"🎯 *Start of tournament:* {datetime.datetime.fromisoformat(tournament[shortKey]['startTournament'].replace("Z", "+00:00")).strftime("%d %B %Y, %H:%M")} UTC\n"
                     msg += f"🔗 [Tournament Link](https://www.vesus.org/tournament/{shortKey})\n"
                     msg += f"👥 *Who There:*\n"
-                    for names in tournament[shortKey]["name"]:
+                    for names in tournament[shortKey]["names"]:
                         msg += f"  - {escapeMarkdown(names)}\n"
                     msg += "\n"
         else:
@@ -299,7 +299,7 @@ async def runCommand(context: Optional[ContextTypes.DEFAULT_TYPE] = None) -> Non
          
         msg += f"Using the keyword: '{escapeMarkdown(settings.queryName)}' in the qualified CIGU18 FSI database, I found:\n"
         
-        if len(GIGResult) > 1:
+        if len(GIGResult) >= 1:
             for quialified in GIGResult:
                 msg += "\n"
                 msg += f"👤 *Name:* {escapeMarkdown(quialified[1])}\n"

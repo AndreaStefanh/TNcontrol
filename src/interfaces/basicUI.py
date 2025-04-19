@@ -35,16 +35,16 @@ def printResult(result: Union[List[Dict[str, Dict[str, Union[str, List[str]]]]],
         outputStr = f"Using the keyword: `{settings.queryName}` for seeing the Vesus pre-registrations, I found the following tournaments:\n\n"
         vesusResult = result[0]
 
-        if len(vesusResult) > 1:
+        if len(vesusResult) >= 1:
             for tournament in vesusResult:
                 for shortKey in tournament:
-                    outputStr += f"Tournament Name: {tournament[shortKey]['tornument']}\n"
+                    outputStr += f"Tournament Name: {tournament[shortKey]['tournament']}\n"
                     outputStr += f" Place: {tournament[shortKey]['location']}\n"
                     outputStr += f" End of registration: {datetime.datetime.fromisoformat(tournament[shortKey]['endRegistration'].replace("Z", "+00:00")).strftime("%d %B %Y, %H:%M")} UTC\n"
-                    outputStr += f" Start of tournament: {datetime.datetime.fromisoformat(tournament[shortKey]['startTornument'].replace("Z", "+00:00")).strftime("%d %B %Y, %H:%M")} UTC\n"
+                    outputStr += f" Start of tournament: {datetime.datetime.fromisoformat(tournament[shortKey]['startTournament'].replace("Z", "+00:00")).strftime("%d %B %Y, %H:%M")} UTC\n"
                     outputStr += f" Tournament Link: https://www.vesus.org/tournament/{shortKey}\n"
                     outputStr += f" Who There:\n"
-                    for names in tournament[shortKey]["name"]:
+                    for names in tournament[shortKey]["names"]:
                         outputStr += f"  - {names}\n"
                     outputStr += "\n"
         else:
@@ -57,7 +57,7 @@ def printResult(result: Union[List[Dict[str, Dict[str, Union[str, List[str]]]]],
 
         outputStr += f"Using the keyword: `{settings.queryName}` in the qualified CIGU18 FSI database, I found:\n"
 
-        if len(GIGResult) > 1:
+        if len(GIGResult) >= 1:
             for quialified in GIGResult:
                 outputStr += "\n"
                 outputStr += f"Name: {quialified[1]}\n"
