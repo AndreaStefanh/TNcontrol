@@ -20,13 +20,16 @@ async def query(logInt: logger) -> List[List[str]]:
             text = await response.text()
 
     parsedText = csv.reader(io.StringIO(text), delimiter=";")
-    nameParts = re.split(r'\s+', settings.queryName.strip().lower())
+    
+    namesList = settings.queryName.split('|')
+    namesPartsList = [re.split(r'\s+', name.strip().lower()) for name in namesList]
 
     for row in parsedText:
         playerName = row[1].lower()
 
-        if all(re.search(re.escape(part), playerName, re.IGNORECASE) for part in nameParts):
-            qualified.append([row[0], row[1], row[2], row[3], row[4], row[5], row[6]])
+        for nameParts in namesPartsList:
+            if all(re.search(re.escape(part), playerName, re.IGNORECASE) for part in nameParts):
+                qualified.append([row[0], row[1], row[2], row[3], row[4], row[5], row[6]])
 
     await logInt.apiRequest(url, {}, text)
     return qualified
