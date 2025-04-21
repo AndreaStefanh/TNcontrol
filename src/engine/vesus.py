@@ -105,7 +105,7 @@ async def getShortKeys(admin1Id: str, logInt: logger) -> List[str]:
     
     return shortKeys
 
-async def getTournamentInfo(shortKey: str, name: str, logInt: logger) -> Dict[str, Dict[str, Union[str, List[str]]]]:
+async def getTournamentInfo(shortKey: str, names: str, logInt: logger) -> Dict[str, Dict[str, Union[str, List[str]]]]:
     tournamentInfo = await requestToAPI(logInt, {
         "variables": {
             "shortKey": shortKey,
@@ -123,25 +123,29 @@ async def getTournamentInfo(shortKey: str, name: str, logInt: logger) -> Dict[st
     players = {}
 
     try:
-        nameParts = re.split(r'\s+', name.strip())
+        namesList = names.split('|')
+        namesPartsList = [re.split(r'\s+', name.strip().lower()) for name in namesList]
+
         registeredPlayers = tournamentInfo["data"]["tournamentUpdate"]["registeredPlayers"]
 
         filteredPlayers = registeredPlayers
-        for part in nameParts:
-            partLower = part.lower()
-            filteredPlayers = [
-                player for player in filteredPlayers
-                if partLower in player["name"].lower()
-            ]
-
-        if filteredPlayers:
-            players[shortKey] = {
-                "tournament": tournamentInfo["data"]["tournamentUpdate"]["event"]["name"],
-                "location": tournamentInfo["data"]["tournamentUpdate"]["event"]["location"],
-                "endRegistration": tournamentInfo["data"]["tournamentUpdate"]["registrationsEnd"],
-                "startTournament": tournamentInfo["data"]["tournamentUpdate"]["start"],
-                "names": [player["name"] for player in filteredPlayers]
-            }
+        for nameParts in namesPartsList:
+            tempFilteredPlayers = filteredPlayers
+            for part in nameParts:
+                partLower = part.lower()
+                tempFilteredPlayers = [
+                    player for player in tempFilteredPlayers
+                    if partLower in player["name"].lower()
+                ]
+            if tempFilteredPlayers:
+                for player in tempFilteredPlayers:
+                    players.setdefault(shortKey, {
+                        "tournament": tournamentInfo["data"]["tournamentUpdate"]["event"]["name"],
+                        "location": tournamentInfo["data"]["tournamentUpdate"]["event"]["location"],
+                        "endRegistration": tournamentInfo["data"]["tournamentUpdate"]["registrationsEnd"],
+                        "startTournament": tournamentInfo["data"]["tournamentUpdate"]["start"],
+                        "names": []
+                    })["names"].append(player["name"])
     finally:
         return players
 
