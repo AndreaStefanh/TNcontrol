@@ -1,3 +1,4 @@
+apscheduler
 pyjson5
 aiohttp
 python-telegram-bot
