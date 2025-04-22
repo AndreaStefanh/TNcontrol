@@ -12,6 +12,7 @@ TNcontrol is a tool designed to find chess tournaments where the person you are 
 - Search for italian chess tournaments on [Vesus](https://vesus.org/).
 - Check if a person has qualified for [CIGU18](https://it.wikipedia.org/wiki/Campionato_italiano_giovanile_di_scacchi).
 - Support for querying specific Italian regions for vesus.
+- Supports querying multiple people by separating names with '|' symbol
 - Command-line interface.
 - Telegram bot integration for interactive usage.
 - Toggle between engines (Vesus and CIGU18).
@@ -58,6 +59,15 @@ $ python3 ./main.py --name=stefan --engine=VES --region=LAZ,CAL
 
 ---
 
+If you want to make a multiple query you can separate the names with the '|' operator.
+You can use the '|' operator everywhere and it is possible to insert the name of the person you want to query (in the cli, in the argument parameters and on telegram).
+
+```console
+$ python3 ./main.py --name="stefan andrea|sonis francesco"
+```
+
+---
+
 If you want to use TNcontrol with the telegram interface just create a bot with [@BotFather](https://telegram.me/BotFather) and take the key then pass this command to the server
 
 ```console
@@ -69,14 +79,15 @@ $ python3 ./main.py --telegram=YOUR_API_KEY_GOES_HERE
 You can also create a **settings.json** file in the program root to keep your settings.
 ```json5
 {
-  // here goes the interface you want to use with TNcontrol it can be 'basicUI' for the cli interface or
-  // 'telegram' to interface as a telegram bot (default is basicUI)
+  // here goes the interface you want to use with TNcontrol it can be 'basicUI' for 
+  // the cli interface or 'telegram' to interface as a telegram bot (default is basicUI)
   "interface": "telegram",
 
   // If you specify telegram interface you will have to enter the key here
   "telegramKey": "YOUR_API_KEY_GOES_HERE",
     
-  // If you have selected the telegram interface then activate the automated run feature from here (default is false)
+  // If you have selected the telegram interface then activate the automated run feature from here
+  // (default is false)
   "telegramAutoRun": true,
     
   // Here you can enter the time in UTC to perform automated run (default is 19:00 UTC)
@@ -90,10 +101,12 @@ You can also create a **settings.json** file in the program root to keep your se
   "selectedEngine": ["vesus", "cigu18"],
     
   // Here if you are using the vesus and you do not want to search for all the tournaments in italy 
-  // you can specify the regions where you want to make the query with the notation '--available-regions' (default are all of them)
+  // you can specify the regions where you want to make the query with the notation 
+  // '--available-regions' (default are all of them)
   "vesusSelectedRegions": ["LAZ", "CAL"],
     
-  // Enable all logging on API requests in the apiLogs.txt file as the '-l' argument flag (default is false)
+  // Enable all logging on API requests in the apiLogs.txt file as the '-l' argument flag 
+  // (default is false)
   "logApiRequests": true
 }
 ```
@@ -111,7 +124,6 @@ You can also create a **settings.json** file in the program root to keep your se
 ## TODO
 
 - For the engine
-  - [ ] Add syntax to query multiple people
   - [ ] Add support to query [Vegaresult](https://www.vegaresult.com/it/tournaments.php)
   - [ ] Add proxy support so ip address doesn't timeout
 
