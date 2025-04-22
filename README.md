@@ -60,6 +60,7 @@ $ python3 ./main.py --name=stefan --engine=VES --region=LAZ,CAL
 ---
 
 If you want to make a multiple query you can separate the names with the '|' operator.
+
 You can use the '|' operator everywhere and it is possible to insert the name of the person you want to query (in the cli, in the argument parameters and on telegram).
 
 ```console
