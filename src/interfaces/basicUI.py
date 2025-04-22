@@ -1,7 +1,9 @@
+import prompt_toolkit
 import datetime
 import calendar
 import asyncio
 
+from prompt_toolkit.history import DummyHistory
 from typing import Optional, Union, List, Dict
 from src.logNSet import settings, engineFlags, logger, REGIONS, PROVINCE
 from src.engine import engine
@@ -21,7 +23,7 @@ class logBUI(logger):
 
 def takeInput() -> str:
     try:
-        selection = input("> ")
+        selection = prompt_toolkit.prompt("> ", history = DummyHistory())
     except KeyboardInterrupt:
         exit(0)
     

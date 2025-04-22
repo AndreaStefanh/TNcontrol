@@ -1,4 +1,5 @@
 apscheduler
+prompt_toolkit
 pyjson5
 aiohttp
 python-telegram-bot
