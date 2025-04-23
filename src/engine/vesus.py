@@ -144,6 +144,7 @@ async def getTournamentInfo(shortKey: str, names: str, logInt: logger) -> Dict[s
                         "location": tournamentInfo["data"]["tournamentUpdate"]["event"]["location"],
                         "endRegistration": tournamentInfo["data"]["tournamentUpdate"]["registrationsEnd"],
                         "startTournament": tournamentInfo["data"]["tournamentUpdate"]["start"],
+                        "endTournament": tournamentInfo["data"]["tournamentUpdate"]["end"],
                         "names": []
                     })["names"].append(player["name"])
     finally:

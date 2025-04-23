@@ -44,6 +44,7 @@ def printResult(result: Union[List[Dict[str, Dict[str, Union[str, List[str]]]]],
                     outputStr += f" Place: {tournament[shortKey]['location']}\n"
                     outputStr += f" End of registration: {datetime.datetime.fromisoformat(tournament[shortKey]['endRegistration'].replace("Z", "+00:00")).strftime("%d %B %Y, %H:%M")} UTC\n"
                     outputStr += f" Start of tournament: {datetime.datetime.fromisoformat(tournament[shortKey]['startTournament'].replace("Z", "+00:00")).strftime("%d %B %Y, %H:%M")} UTC\n"
+                    outputStr += f" End of tournament: {datetime.datetime.fromisoformat(tournament[shortKey]['endTournament'].replace("Z", "+00:00")).strftime("%d %B %Y, %H:%M")} UTC\n"
                     outputStr += f" Tournament Link: https://www.vesus.org/tournament/{shortKey}\n"
                     outputStr += f" Who There:\n"
                     for names in tournament[shortKey]["names"]:
