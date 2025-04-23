@@ -270,10 +270,15 @@ async def runCommand(context: Optional[ContextTypes.DEFAULT_TYPE] = None) -> Non
         await logTG.error(f"Error while running the bot: {e}.\nSee errorLogs file to see more informations.", stacktrace = errorDetails)
         return
     
+    names = settings.queryName.split("|")
+    if len(names) == 1:
+        formattedNames = f"`{names[0].strip()}`"
+    else:
+        formattedNames = " & ".join([f"`{name.strip()}`" for name in names])
     msg = ""
           
     if settings.selectedEngine & engineFlags.VESUS:
-        msg = f"Using the keyword: '{escapeMarkdown(settings.queryName)}' for seeing the Vesus pre-registrations, I found the following tournaments:\n\n"
+        msg = f"Using the keyword: {escapeMarkdown(formattedNames)} for seeing the Vesus pre-registrations, I found the following tournaments:\n\n"
         vesusResult = result[0]
            
         if len(vesusResult) >= 1:
@@ -298,7 +303,7 @@ async def runCommand(context: Optional[ContextTypes.DEFAULT_TYPE] = None) -> Non
         else:
             GIGResult = result[0]
          
-        msg += f"Using the keyword: '{escapeMarkdown(settings.queryName)}' in the qualified CIGU18 FSI database, I found:\n"
+        msg += f"Using the keyword: {escapeMarkdown(formattedNames)} in the qualified CIGU18 FSI database, I found:\n"
         
         if len(GIGResult) >= 1:
             for quialified in GIGResult:

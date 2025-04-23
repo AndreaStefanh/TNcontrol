@@ -31,10 +31,15 @@ def takeInput() -> str:
 
 def printResult(result: Union[List[Dict[str, Dict[str, Union[str, List[str]]]]], List[List[str]]]) -> None:
 
+    names = settings.queryName.split("|")
+    if len(names) == 1:
+        formattedNames = f"`{names[0].strip()}`"
+    else:
+        formattedNames = " & ".join([f"`{name.strip()}`" for name in names])
     outputStr = ""
 
     if settings.selectedEngine & engineFlags.VESUS:
-        outputStr = f"Using the keyword: `{settings.queryName}` for seeing the Vesus pre-registrations, I found the following tournaments:\n\n"
+        outputStr = f"Using the keyword: {formattedNames} for seeing the Vesus pre-registrations, I found the following tournaments:\n\n"
         vesusResult = result[0]
 
         if len(vesusResult) >= 1:
@@ -58,7 +63,7 @@ def printResult(result: Union[List[Dict[str, Dict[str, Union[str, List[str]]]]],
         if settings.selectedEngine & engineFlags.VESUS: GIGResult = result[1]
         else: GIGResult = result[0]
 
-        outputStr += f"Using the keyword: `{settings.queryName}` in the qualified CIGU18 FSI database, I found:\n"
+        outputStr += f"Using the keyword: {formattedNames} in the qualified CIGU18 FSI database, I found:\n"
 
         if len(GIGResult) >= 1:
             for quialified in GIGResult:
