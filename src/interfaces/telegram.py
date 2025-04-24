@@ -278,7 +278,7 @@ async def runCommand(context: Optional[ContextTypes.DEFAULT_TYPE] = None) -> Non
     msg = ""
           
     if settings.selectedEngine & engineFlags.VESUS:
-        msg = f"Using the keyword: {escapeMarkdown(formattedNames)} for seeing the Vesus pre-registrations, I found the following tournaments:\n\n"
+        msg = f"Using the keyword(s): {escapeMarkdown(formattedNames)} for Vesus pre-registrations, I found the following tournaments:\n\n"
         vesusResult = result[0]
            
         if len(vesusResult) >= 1:
@@ -310,7 +310,7 @@ async def runCommand(context: Optional[ContextTypes.DEFAULT_TYPE] = None) -> Non
         else:
             GIGResult = result[0]
          
-        msg += f"Using the keyword: {escapeMarkdown(formattedNames)} in the qualified CIGU18 FSI database, I found:\n"
+        msg += f"Using the keyword(s): {escapeMarkdown(formattedNames)} in the qualified CIGU18 FSI database, I found:\n"
         
         if len(GIGResult) >= 1:
             for quialified in GIGResult:
