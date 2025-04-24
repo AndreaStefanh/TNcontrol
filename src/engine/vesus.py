@@ -147,7 +147,7 @@ async def getTournamentInfo(shortKey: str, names: str, logInt: logger) -> Dict[s
                 ]
             if tempFilteredPlayers:
                 for player in tempFilteredPlayers:
-                    tournamentName = tournamentInfo["data"]["tournamentUpdate"]["name"]
+                    tournamentName = "Main" if tournamentInfo["data"]["tournamentUpdate"]["name"] == None else tournamentInfo["data"]["tournamentUpdate"]["name"]
                     result["shortkeys"][shortKey] = tournamentName
                     if tournamentName not in result["names"]:
                         result["names"][tournamentName] = []
