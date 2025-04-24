@@ -105,7 +105,7 @@ async def getShortKeys(admin1Id: str, logInt: logger) -> List[str]:
     
     return shortKeys
 
-async def getTournamentInfo(shortKey: str, names: str, logInt: logger) -> Dict[str, Dict[str, Union[str, List[str]]]]:
+async def getTournamentInfo(shortKey: str, names: str, logInt: logger) -> Dict[str, Union[str, Dict[str, str], Dict[str, List[str]]]]:
     tournamentInfo = await requestToAPI(logInt, {
         "variables": {
             "shortKey": shortKey,
@@ -120,7 +120,15 @@ async def getTournamentInfo(shortKey: str, names: str, logInt: logger) -> Dict[s
         "docId": "5028c4f2454522745e46818479f5c185"
     })
 
-    players = {}
+    result = {
+        "eventName": tournamentInfo["data"]["tournamentUpdate"]["event"]["name"],
+        "location": tournamentInfo["data"]["tournamentUpdate"]["event"]["location"],
+        "endRegistration": tournamentInfo["data"]["tournamentUpdate"]["registrationsEnd"],
+        "startTournament": tournamentInfo["data"]["tournamentUpdate"]["start"],
+        "endTournament": tournamentInfo["data"]["tournamentUpdate"]["end"],
+        "shortkeys": {},
+        "names": {}
+    }
 
     try:
         namesList = names.split('|')
@@ -139,18 +147,18 @@ async def getTournamentInfo(shortKey: str, names: str, logInt: logger) -> Dict[s
                 ]
             if tempFilteredPlayers:
                 for player in tempFilteredPlayers:
-                    players.setdefault(shortKey, {
-                        "tournament": tournamentInfo["data"]["tournamentUpdate"]["event"]["name"],
-                        "location": tournamentInfo["data"]["tournamentUpdate"]["event"]["location"],
-                        "endRegistration": tournamentInfo["data"]["tournamentUpdate"]["registrationsEnd"],
-                        "startTournament": tournamentInfo["data"]["tournamentUpdate"]["start"],
-                        "endTournament": tournamentInfo["data"]["tournamentUpdate"]["end"],
-                        "names": []
-                    })["names"].append(player["name"])
+                    tournamentName = tournamentInfo["data"]["tournamentUpdate"]["name"]
+                    result["shortkeys"][shortKey] = tournamentName
+                    if tournamentName not in result["names"]:
+                        result["names"][tournamentName] = []
+                    result["names"][tournamentName].append(player["name"])
     finally:
-        return players
+        if result["names"] != {}:
+            return result
+        else:
+            return {}
 
-async def query(logInt: logger) -> List[Dict[str, Dict[str, Union[str, List[str]]]]]:
+async def query(logInt: logger) -> List[Dict[str, Union[str, Dict[str, str], Dict[str, List[str]]]]]:
     tasks = []
     async with asyncio.TaskGroup() as tg:
         for region in settings.vesusRegionsToQuery:
@@ -158,13 +166,33 @@ async def query(logInt: logger) -> List[Dict[str, Dict[str, Union[str, List[str]
                 tasks.append(tg.create_task(getShortKeys(ADMIN1ID[region], logInt)))
             else:
                 await logInt.error(f"Unknown region: {region}", shouldExit=True)
-    result = [task.result() for task in tasks]
-    
+    shortKeysByRegion = [task.result() for task in tasks]
+
     tasks = []
     async with asyncio.TaskGroup() as tg:
-        for region in result:
+        for region in shortKeysByRegion:
             for shortKey in region:
                 tasks.append(tg.create_task(getTournamentInfo(shortKey, settings.queryName, logInt)))
-    result = [r for r in (task.result() for task in tasks) if r]
+    rawResults = [r for r in (task.result() for task in tasks) if r]
 
-    return result
+    groupedResults = {}
+    for tournament in rawResults:
+        key = (tournament["eventName"], tournament["location"])
+        if key not in groupedResults:
+            groupedResults[key] = {
+                "eventName": tournament["eventName"],
+                "location": tournament["location"],
+                "endRegistration": tournament["endRegistration"],
+                "startTournament": tournament["startTournament"],
+                "endTournament": tournament["endTournament"],
+                "shortkeys": {},
+                "names": {}
+            }
+        
+        groupedResults[key]["shortkeys"].update(tournament["shortkeys"])
+        for tournamentName, players in tournament["names"].items():
+            if tournamentName not in groupedResults[key]["names"]:
+                groupedResults[key]["names"][tournamentName] = []
+            groupedResults[key]["names"][tournamentName].extend(players)
+
+    return list(groupedResults.values())

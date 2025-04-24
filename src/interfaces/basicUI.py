@@ -29,64 +29,64 @@ def takeInput() -> str:
     
     return selection
 
-def printResult(result: Union[List[Dict[str, Dict[str, Union[str, List[str]]]]], List[List[str]]]) -> None:
-
+def printResult(result: List[Union[List[Dict[str, Union[str, Dict[str, str], Dict[str, List[str]]]]], List[List[str]]]]) -> None:
     names = settings.queryName.split("|")
     if len(names) == 1:
         formattedNames = f"`{names[0].strip()}`"
     else:
-        formattedNames = " & ".join([f"`{name.strip()}`" for name in names])
+        formattedNames = ", ".join([f"`{name.strip()}`" for name in names])
     outputStr = ""
 
     if settings.selectedEngine & engineFlags.VESUS:
-        outputStr = f"Using the keyword: {formattedNames} for seeing the Vesus pre-registrations, I found the following tournaments:\n\n"
+        outputStr += f"Using the keyword(s): {formattedNames} for Vesus pre-registrations, I found the following tournaments:\n\n"
         vesusResult = result[0]
 
         if len(vesusResult) >= 1:
             for tournament in vesusResult:
-                for shortKey in tournament:
-                    outputStr += f"Tournament Name: {tournament[shortKey]['tournament']}\n"
-                    outputStr += f" Place: {tournament[shortKey]['location']}\n"
-                    outputStr += f" End of registration: {datetime.datetime.fromisoformat(tournament[shortKey]['endRegistration'].replace("Z", "+00:00")).strftime("%d %B %Y, %H:%M")} UTC\n"
-                    outputStr += f" Start of tournament: {datetime.datetime.fromisoformat(tournament[shortKey]['startTournament'].replace("Z", "+00:00")).strftime("%d %B %Y, %H:%M")} UTC\n"
-                    outputStr += f" End of tournament: {datetime.datetime.fromisoformat(tournament[shortKey]['endTournament'].replace("Z", "+00:00")).strftime("%d %B %Y, %H:%M")} UTC\n"
-                    outputStr += f" Tournament Link: https://www.vesus.org/tournament/{shortKey}\n"
-                    outputStr += f" Who There:\n"
-                    for names in tournament[shortKey]["names"]:
-                        outputStr += f"  - {names}\n"
-                    outputStr += "\n"
-        else:
-            outputStr += "Couldn't find anything in vesus engine\n\n"
-    
-    if settings.selectedEngine & engineFlags.CIGU18:
-        
-        if settings.selectedEngine & engineFlags.VESUS: GIGResult = result[1]
-        else: GIGResult = result[0]
+                outputStr += f"Event Name: {tournament['eventName']}\n"
+                outputStr += f" Location: {tournament['location']}\n"
+                outputStr += f" End of Registration:     {datetime.datetime.fromisoformat(tournament['endRegistration'].replace('Z', '+00:00')).strftime('%d %B %Y, %H:%M')} UTC\n"
+                outputStr += f" Start of the Tournament: {datetime.datetime.fromisoformat(tournament['startTournament'].replace('Z', '+00:00')).strftime('%d %B %Y, %H:%M')} UTC\n"
+                outputStr += f" End of the Tournament:   {datetime.datetime.fromisoformat(tournament['endTournament'].replace('Z', '+00:00')).strftime('%d %B %Y, %H:%M')} UTC\n"
+                outputStr += f" Tournaments:\n"
 
-        outputStr += f"Using the keyword: {formattedNames} in the qualified CIGU18 FSI database, I found:\n"
+                maxNameLength = max(len(name) for name in tournament["shortkeys"].values())
+                for shortKey, name in tournament["shortkeys"].items():
+                    outputStr += f"  - {name.ljust(maxNameLength)}: (Link: https://www.vesus.org/tournament/{shortKey})\n"
 
-        if len(GIGResult) >= 1:
-            for quialified in GIGResult:
+                outputStr += f" Participants:\n"
+                for group, participants in tournament["names"].items():
+                    outputStr += f"  {group}:\n"
+                    for participant in participants:
+                        outputStr += f"    - {participant}\n"
                 outputStr += "\n"
-                outputStr += f"Name: {quialified[1]}\n"
-
-                for k, v in REGIONS.items():
-                    if v == quialified[5]:
-                        outputStr += f" Region: {k}\n"
-                        break
-                #outputStr += f" Region: {quialified[5]}\n"
-
-                outputStr += f" Province: {PROVINCE[quialified[4]]}\n"
-                bdate = quialified[2].split("-")
-                outputStr += f" Birthdate: {bdate[2]} {calendar.month_name[int(bdate[1])]} {bdate[0]}\n"
-                outputStr += f" Sex: {"Male" if quialified[6] == "M" else "Female"}\n"
-                outputStr += f" FSI ID: {quialified[0]}\n"
-                outputStr += f" FSI Info: https://www.federscacchi.com/fsi/index.php/struttura/tesserati?&idx={quialified[0]}&ric=1\n"
-                outputStr += f" Club ID: {quialified[3]}\n"
-                outputStr += f" Club Info: https://www.federscacchi.com/fsi/index.php/struttura/societa?idx={quialified[3]}&anno={datetime.datetime.now().year}&ric=1\n"
         else:
-            outputStr += "\nCouldn't find anything in CIGU18 engine\n\n"
-    
+            outputStr += "Couldn't find anything in Vesus engine.\n\n"
+
+    if settings.selectedEngine & engineFlags.CIGU18:
+        if settings.selectedEngine & engineFlags.VESUS:
+            cigResult = result[1]
+        else:
+            cigResult = result[0]
+
+        outputStr += f"Using the keyword(s): {formattedNames} in the qualified CIGU18 FSI database, I found:\n"
+
+        if len(cigResult) >= 1:
+            for qualified in cigResult:
+                outputStr += "\n"
+                outputStr += f"Name: {qualified[1]}\n"
+                outputStr += f" Region: {next(k for k, v in REGIONS.items() if v == qualified[5])}\n"
+                outputStr += f" Province: {PROVINCE[qualified[4]]}\n"
+                bdate = qualified[2].split("-")
+                outputStr += f" Birthdate: {bdate[2]} {calendar.month_name[int(bdate[1])]} {bdate[0]}\n"
+                outputStr += f" Sex: {"Male" if qualified[6] == "M" else "Female"}\n"
+                outputStr += f" FSI ID: {qualified[0]}\n"
+                outputStr += f" FSI Info: https://www.federscacchi.com/fsi/index.php/struttura/tesserati?&idx={qualified[0]}&ric=1\n"
+                outputStr += f" Club ID: {qualified[3]}\n"
+                outputStr += f" Club Info: https://www.federscacchi.com/fsi/index.php/struttura/societa?idx={qualified[3]}&anno={datetime.datetime.now().year}&ric=1\n"
+        else:
+            outputStr += "\nCouldn't find anything in CIGU18 engine.\n\n"
+
     print(f"\r{outputStr}", end="", flush=True)
     return
 

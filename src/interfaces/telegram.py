@@ -274,7 +274,7 @@ async def runCommand(context: Optional[ContextTypes.DEFAULT_TYPE] = None) -> Non
     if len(names) == 1:
         formattedNames = f"`{names[0].strip()}`"
     else:
-        formattedNames = " & ".join([f"`{name.strip()}`" for name in names])
+        formattedNames = ", ".join([f"`{name.strip()}`" for name in names])
     msg = ""
           
     if settings.selectedEngine & engineFlags.VESUS:
@@ -283,19 +283,26 @@ async def runCommand(context: Optional[ContextTypes.DEFAULT_TYPE] = None) -> Non
            
         if len(vesusResult) >= 1:
             for tournament in vesusResult:
-                for shortKey in tournament:
-                    msg += f"🔹 *Tournament Name:* {escapeMarkdown(tournament[shortKey]['tournament'])}\n"
-                    msg += f"📍 *Place:* {escapeMarkdown(tournament[shortKey]['location'])}\n"
-                    msg += f"📅 *End of registration:* {datetime.datetime.fromisoformat(tournament[shortKey]['endRegistration'].replace("Z", "+00:00")).strftime("%d %B %Y, %H:%M")} UTC\n"
-                    msg += f"🎯 *Start of the tournament:* {datetime.datetime.fromisoformat(tournament[shortKey]['startTournament'].replace("Z", "+00:00")).strftime("%d %B %Y, %H:%M")} UTC\n"
-                    msg += f"⏳ *End of the tournament:* {datetime.datetime.fromisoformat(tournament[shortKey]['endTournament'].replace("Z", "+00:00")).strftime("%d %B %Y, %H:%M")} UTC\n"
-                    msg += f"🔗 [Tournament Link](https://www.vesus.org/tournament/{shortKey})\n"
-                    msg += f"👥 *Who There:*\n"
-                    for names in tournament[shortKey]["names"]:
-                        msg += f"  - {escapeMarkdown(names)}\n"
-                    msg += "\n"
+                msg += f"🔹 *Event Name:* {escapeMarkdown(tournament['eventName'])}\n"
+                msg += f"📍 *Place:* {escapeMarkdown(tournament['location'])}\n"
+                msg += f"📅 *End of Registration:*         {datetime.datetime.fromisoformat(tournament['endRegistration'].replace('Z', '+00:00')).strftime('%d %B %Y, %H:%M')} UTC\n"
+                msg += f"🎯 *Start of the Tournament:* {datetime.datetime.fromisoformat(tournament['startTournament'].replace('Z', '+00:00')).strftime('%d %B %Y, %H:%M')} UTC\n"
+                msg += f"⏳ *End of the Tournament:*   {datetime.datetime.fromisoformat(tournament['endTournament'].replace('Z', '+00:00')).strftime('%d %B %Y, %H:%M')} UTC\n"
+                msg += f"♟️ *Tournaments:*\n"
+
+                maxNameLength = max(len(name) for name in tournament["shortkeys"].values())
+                for shortKey, name in tournament["shortkeys"].items():
+                    spaces = " " * (maxNameLength - len(name))
+                    msg += f"  - {escapeMarkdown(name)}:{spaces} [(Link)](https://www.vesus.org/tournament/{shortKey})\n"
+
+                msg += f"👥 *Participants:*\n"
+                for group, participants in tournament["names"].items():
+                    msg += f"  {escapeMarkdown(group)}:\n"
+                    for participant in participants:
+                        msg += f"    - {escapeMarkdown(participant)}\n"
+                msg += "\n"
         else:
-            msg += "Couldn't find anything in vesus engine\n\n"
+            msg += "Couldn't find anything in Vesus engine\n\n"
                
     if settings.selectedEngine & engineFlags.CIGU18:
         if settings.selectedEngine & engineFlags.VESUS:
@@ -314,12 +321,11 @@ async def runCommand(context: Optional[ContextTypes.DEFAULT_TYPE] = None) -> Non
                     if v == quialified[5]:
                         msg += f"🗺️ *Region:* {escapeMarkdown(k)}\n"
                         break
-                #msg += f" 🗺️ *Region:* {escapeMarkdown(quialified[5])}\n"
 
                 msg += f"📍 *Province:* {escapeMarkdown(PROVINCE[quialified[4]])}\n"
                 bdate = quialified[2].split("-")
                 msg += f"🎂 *Birthdate:* {bdate[2]} {calendar.month_name[int(bdate[1])]} {bdate[0]}\n"
-                msg += f"⚧️ *Sex:* {"Male" if escapeMarkdown(quialified[6]) == "M" else "Female"}\n"
+                msg += f"⚧️ *Sex:* {"Male" if quialified[6] == "M" else "Female"}\n"
                 msg += f"🇮🇹 *FSI ID:* [{escapeMarkdown(quialified[0])}](https://www.federscacchi.com/fsi/index.php/struttura/tesserati?&idx={escapeMarkdown(quialified[0])}&ric=1)\n"
                 msg += f"🏢 *Club ID:* [{escapeMarkdown(quialified[3])}](https://www.federscacchi.com/fsi/index.php/struttura/societa?idx={escapeMarkdown(quialified[3])}&anno={datetime.datetime.now().year}&ric=1)\n"
         else:

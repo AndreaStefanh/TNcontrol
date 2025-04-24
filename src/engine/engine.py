@@ -5,7 +5,7 @@ from src.logNSet import settings, engineFlags, logger
 from src.engine import vesus
 from src.engine import CIGU18
 
-async def start(logInt: logger) -> Union[List[Dict[str, Dict[str, Union[str, List[str]]]]], List[List[str]]]:
+async def start(logInt: logger) -> List[Union[List[Dict[str, Union[str, Dict[str, str], Dict[str, List[str]]]]], List[List[str]]]]:
 
     tasks = []
     async with asyncio.TaskGroup() as tg:
