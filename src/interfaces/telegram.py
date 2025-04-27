@@ -288,18 +288,18 @@ async def runCommand(context: Optional[ContextTypes.DEFAULT_TYPE] = None) -> Non
                 msg += f"📅 *End of Registration:*         {datetime.datetime.fromisoformat(tournament['endRegistration'].replace('Z', '+00:00')).strftime('%d %B %Y, %H:%M')} UTC\n"
                 msg += f"🎯 *Start of the Tournament:* {datetime.datetime.fromisoformat(tournament['startTournament'].replace('Z', '+00:00')).strftime('%d %B %Y, %H:%M')} UTC\n"
                 msg += f"⏳ *End of the Tournament:*   {datetime.datetime.fromisoformat(tournament['endTournament'].replace('Z', '+00:00')).strftime('%d %B %Y, %H:%M')} UTC\n"
-                msg += f"♟️ *Tournaments:*\n"
-
-                maxNameLength = max(len(name) for name in tournament["shortkeys"].values())
-                for shortKey, name in tournament["shortkeys"].items():
-                    spaces = " " * (maxNameLength - len(name))
-                    msg += f"  - {escapeMarkdown(name)}:{spaces} [(Link)](https://www.vesus.org/tournament/{shortKey})\n"
 
                 msg += f"👥 *Participants:*\n"
                 for group, participants in tournament["names"].items():
-                    msg += f"  {escapeMarkdown(group)}:\n"
+                    for key, value in tournament["shortkeys"].items():
+                        if value == group:
+                            shortKey = key
+                            break
+            
+                    msg += f"🏆 [{escapeMarkdown(group)}:](https://www.vesus.org/tournament/{shortKey})\n"
+
                     for participant in participants:
-                        msg += f"    - {escapeMarkdown(participant)}\n"
+                        msg += f"    - {escapeMarkdown(participant)}\n"    
                 msg += "\n"
         else:
             msg += "Couldn't find anything in Vesus engine\n\n"

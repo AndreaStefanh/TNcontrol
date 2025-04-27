@@ -48,15 +48,11 @@ def printResult(result: List[Union[List[Dict[str, Union[str, Dict[str, str], Dic
                 outputStr += f" End of Registration:     {datetime.datetime.fromisoformat(tournament['endRegistration'].replace('Z', '+00:00')).strftime('%d %B %Y, %H:%M')} UTC\n"
                 outputStr += f" Start of the Tournament: {datetime.datetime.fromisoformat(tournament['startTournament'].replace('Z', '+00:00')).strftime('%d %B %Y, %H:%M')} UTC\n"
                 outputStr += f" End of the Tournament:   {datetime.datetime.fromisoformat(tournament['endTournament'].replace('Z', '+00:00')).strftime('%d %B %Y, %H:%M')} UTC\n"
-                outputStr += f" Tournaments:\n"
-
-                maxNameLength = max(len(name) for name in tournament["shortkeys"].values())
-                for shortKey, name in tournament["shortkeys"].items():
-                    outputStr += f"  - {name.ljust(maxNameLength)}: (Link: https://www.vesus.org/tournament/{shortKey})\n"
-
                 outputStr += f" Participants:\n"
                 for group, participants in tournament["names"].items():
-                    outputStr += f"  {group}:\n"
+                    shortKey = next(key for key, value in tournament["shortkeys"].items() if value == group)
+                    outputStr += f"  {group} (Link: https://www.vesus.org/tournament/{shortKey}):\n"
+
                     for participant in participants:
                         outputStr += f"    - {participant}\n"
                 outputStr += "\n"
