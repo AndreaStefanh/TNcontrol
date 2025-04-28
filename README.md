@@ -7,6 +7,14 @@ TNcontrol is a tool designed to find chess tournaments where the person you are 
 
 ---
 
+## Demo
+
+Telegram interface, basic demo.
+
+![Demo](https://github.com/user-attachments/assets/cd19156e-6128-4d0c-bca9-445dde20cd25)
+
+---
+
 ## Features
 
 - Search for italian chess tournaments on [Vesus](https://vesus.org/).
