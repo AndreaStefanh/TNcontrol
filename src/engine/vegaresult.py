@@ -19,8 +19,9 @@ def getIds() -> list[str]:
     
     return ids
 
-def getEventId() -> None:
+def getEventId() -> list[str]:
 
+    eventIds = []
     ids = getIds()
     for id in ids:
         tournamentPage = request(id)
@@ -28,13 +29,27 @@ def getEventId() -> None:
         
         for link in soup.find_all('a'):
             if link.get("href").startswith("players.php?section_id="):
-                print(link.get("href"))
+                eventIds.append(link.get("href"))
+    
+    return eventIds
+
+def getPlayers() -> None:
+    eventIds = getEventId()
+    for event in eventIds:
+        playersPage = request(event)
+        soup = BeautifulSoup(playersPage, "html.parser")
+
+        rows = soup.find_all("tr")
+        for row in rows:
+            cells = row.find_all("td")
+            if len(cells) >= 2:
+                print(cells[1].get_text(strip=True))
     
     return
 
 def main() -> None:
     
-    getEventId()
+    getPlayers()
     return 
 
 if __name__ == "__main__":
