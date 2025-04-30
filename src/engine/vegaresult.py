@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 
 async def request(param: str) -> str:
     async with aiohttp.ClientSession() as session:
-        async with session.get("https://www.vegaresult.com/vr/" + param, timeout=aiohttp.ClientTimeout(total=180)) as response:
+        async with session.get("https://www.vegaresult.com/" + param, timeout=aiohttp.ClientTimeout(total=180)) as response:
 
             if response.status != 200:
                 text = await response.text()
@@ -19,7 +19,7 @@ async def request(param: str) -> str:
             return await response.text()
 
 async def getIds() -> list[str]:
-    tournamentsInfo = await request("get_tournaments.php?status=next&timecontrol=all&interest=all&type=all&event=&startdate=&enddate=")
+    tournamentsInfo = await request("vr/get_tournaments.php?status=next&timecontrol=all&interest=all&type=all&event=&startdate=&enddate=")
     tournamentsInfo = json.loads(tournamentsInfo)["tournaments"]
 
     ids = []
@@ -29,7 +29,7 @@ async def getIds() -> list[str]:
     return ids
 
 async def getTournamentInfo(id: str) -> dict:
-    tournamentInfo = await request(id)
+    tournamentInfo = await request(f"vr/{id}")
     soup = BeautifulSoup(tournamentInfo, "html.parser")
 
     eventName = soup.select_one("h3.mb-0.text-truncate.ps-5").get_text(strip=True)
@@ -72,6 +72,35 @@ async def getTournamentInfo(id: str) -> dict:
         "tournaments": tournaments
     }
 
+async def getPlayers(event: dict) -> None:
+
+    for tournament in event["tournaments"]:
+        if tournament["playersLink"] != None:
+            tournamentPlayers = await request(f"vr/{tournament["playersLink"]}")
+            soup = BeautifulSoup(tournamentPlayers, "html.parser")
+
+            rows = soup.find_all("tr")
+            for row in rows:
+                cells = row.find_all("td")
+                if len(cells) >= 2:
+                    print(cells[1].get_text(strip=True))
+        
+        if tournament["resultsLink"] != None:
+            tournament["resultsLink"] = tournament["resultsLink"].lstrip("../")
+            if tournament["resultsLink"].startswith("orion-trn/"):
+                print(f"In: https://www.vegaresult.com/{tournament["resultsLink"]} uses orion that is not supported yet")
+                continue
+
+            tournamentResults = await request(tournament["resultsLink"])
+            soup = BeautifulSoup(tournamentResults, "html.parser")
+            rows = soup.find_all("tr")
+            for row in rows:
+                cells = row.find_all("td")
+                if len(cells) >= 2:
+                    print(f"{cells[1].get_text(strip=True)}")
+
+    return
+
 async def main() -> None:
     ids = await getIds()
 
@@ -80,8 +109,13 @@ async def main() -> None:
         tasks = [tg.create_task(getTournamentInfo(id)) for id in ids]
     results = [task.result() for task in tasks]
     
-    for result in results:
-        print(json.dumps(result, indent=2, ensure_ascii=False))
+    tasks = []
+    async with asyncio.TaskGroup() as tg:
+        tasks = [tg.create_task(getPlayers(result)) for result in results]
+    results = [task.result() for task in tasks]
+
+    # for result in results:
+    #     print(json.dumps(result, indent=2, ensure_ascii=False))
 
 if __name__ == "__main__":
     asyncio.run(main())
