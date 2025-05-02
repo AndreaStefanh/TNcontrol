@@ -3,6 +3,7 @@
 # when it reaches a semi-functional state it can be executed by tncontrol
 import asyncio
 import aiohttp
+import re
 import json
 
 from bs4 import BeautifulSoup
@@ -72,7 +73,8 @@ async def getTournamentInfo(id: str) -> dict:
         "tournaments": tournaments
     }
 
-async def getPlayers(event: dict) -> None:
+async def getPlayers(event: dict, name: str) -> None:
+    nameParts = name.split()
 
     for tournament in event["tournaments"]:
         if tournament["playersLink"] != None:
@@ -83,7 +85,9 @@ async def getPlayers(event: dict) -> None:
             for row in rows:
                 cells = row.find_all("td")
                 if len(cells) >= 2:
-                    print(cells[1].get_text(strip=True))
+                    playerName = cells[1].get_text(strip=True)
+                    if any(re.search(rf'\b{re.escape(part)}\b', playerName, re.IGNORECASE) for part in nameParts):
+                        print(f"found match: {playerName}")
         
         if tournament["resultsLink"] != None:
             tournament["resultsLink"] = tournament["resultsLink"].lstrip("../")
@@ -97,11 +101,15 @@ async def getPlayers(event: dict) -> None:
             for row in rows:
                 cells = row.find_all("td")
                 if len(cells) >= 2:
-                    print(f"{cells[1].get_text(strip=True)}")
+                    playerName = cells[1].get_text(strip=True).lower().split()
+                    if any(re.search(rf'\b{re.escape(part)}\b', playerName, re.IGNORECASE) for part in nameParts):
+                        print(f"found match: {playerName}")
 
     return
 
 async def main() -> None:
+    QUERY = "terenzi flavio" # Test name from: https://www.vegaresult.com/vega/index.php?id=5492
+
     ids = await getIds()
 
     results = []
@@ -111,7 +119,7 @@ async def main() -> None:
     
     tasks = []
     async with asyncio.TaskGroup() as tg:
-        tasks = [tg.create_task(getPlayers(result)) for result in results]
+        tasks = [tg.create_task(getPlayers(result, QUERY)) for result in results]
     results = [task.result() for task in tasks]
 
     # for result in results:
