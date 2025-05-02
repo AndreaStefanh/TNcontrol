@@ -6,6 +6,7 @@ import aiohttp
 import re
 import json
 
+from typing import Union, Optional, List, Dict
 from bs4 import BeautifulSoup
 
 async def request(param: str) -> str:
@@ -29,7 +30,7 @@ async def getIds() -> list[str]:
     
     return ids
 
-async def getTournamentInfo(id: str) -> dict:
+async def getTournamentInfo(id: str) -> Dict[str, Union[str, List[Dict[str, Optional[str]]]]]:
     tournamentInfo = await request(f"vr/{id}")
     soup = BeautifulSoup(tournamentInfo, "html.parser")
 
@@ -73,7 +74,7 @@ async def getTournamentInfo(id: str) -> dict:
         "tournaments": tournaments
     }
 
-async def getPlayers(event: dict, name: str) -> None:
+async def getPlayers(event: dict, name: str) -> Optional[Dict[str, Union[str, List[Dict[str, Optional[str]]]]]]:
     modifiedEvent = False
     nameParts = name.split()
 
@@ -89,7 +90,6 @@ async def getPlayers(event: dict, name: str) -> None:
                     playerName = cells[1].get_text(strip=True)
                     if any(re.search(rf"\b{re.escape(part)}\b", playerName, re.IGNORECASE) for part in nameParts):
                         if not modifiedEvent: modifiedEvent = True
-                        #print(f"found match: {playerName}")
                         if "playersList" in event:
                             event["playersList"].append(playerName)
                         else:
@@ -121,7 +121,7 @@ async def getPlayers(event: dict, name: str) -> None:
     return
 
 async def main() -> None:
-    QUERY = "Salvatore"
+    QUERY = "marco"
 
     ids = await getIds()
 
@@ -136,9 +136,8 @@ async def main() -> None:
     results = [task.result() for task in tasks]
     results = [result for result in results if result is not None]
 
-    # for result in results:
-    #     print(json.dumps(result, indent=2, ensure_ascii=False))
-    print(results)
+    for result in results:
+        print(json.dumps(result, indent=2, ensure_ascii=False))
     
 if __name__ == "__main__":
     asyncio.run(main())
