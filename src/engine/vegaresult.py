@@ -74,6 +74,7 @@ async def getTournamentInfo(id: str) -> dict:
     }
 
 async def getPlayers(event: dict, name: str) -> None:
+    modifiedEvent = False
     nameParts = name.split()
 
     for tournament in event["tournaments"]:
@@ -87,14 +88,19 @@ async def getPlayers(event: dict, name: str) -> None:
                 if len(cells) >= 2:
                     playerName = cells[1].get_text(strip=True)
                     if any(re.search(rf"\b{re.escape(part)}\b", playerName, re.IGNORECASE) for part in nameParts):
-                        print(f"found match: {playerName}")
+                        if not modifiedEvent: modifiedEvent = True
+                        #print(f"found match: {playerName}")
+                        if "playersList" in event:
+                            event["playersList"].append(playerName)
+                        else:
+                            event["playersList"] = [playerName]
+
         
         if tournament["resultsLink"] != None:
             tournament["resultsLink"] = tournament["resultsLink"].lstrip("../")
             if tournament["resultsLink"].startswith("orion-trn/"):
                 print(f"In: https://www.vegaresult.com/{tournament["resultsLink"]} uses orion that is not supported yet")
                 continue
-
             tournamentResults = await request(tournament["resultsLink"])
             soup = BeautifulSoup(tournamentResults, "html.parser")
             rows = soup.find_all("tr")
@@ -103,12 +109,19 @@ async def getPlayers(event: dict, name: str) -> None:
                 if len(cells) >= 2:
                     playerName = cells[1].get_text(strip=True)
                     if any(re.search(rf"\b{re.escape(part)}\b", playerName, re.IGNORECASE) for part in nameParts):
-                        print(f"found match: {playerName}")
+                        if not modifiedEvent: modifiedEvent = True
+                        if "playersResultList" in event:
+                            event["playersResultList"].append(playerName)
+                        else:
+                            event["playersResultList"] = [playerName]
+    
+    if modifiedEvent:
+        return event
 
     return
 
 async def main() -> None:
-    QUERY = "Salvatore" # Test name from: https://www.vegaresult.com/vega/index.php?id=5492
+    QUERY = "Salvatore"
 
     ids = await getIds()
 
@@ -121,9 +134,11 @@ async def main() -> None:
     async with asyncio.TaskGroup() as tg:
         tasks = [tg.create_task(getPlayers(result, QUERY)) for result in results]
     results = [task.result() for task in tasks]
+    results = [result for result in results if result is not None]
 
     # for result in results:
     #     print(json.dumps(result, indent=2, ensure_ascii=False))
-
+    print(results)
+    
 if __name__ == "__main__":
     asyncio.run(main())
