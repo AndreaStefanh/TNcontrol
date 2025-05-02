@@ -86,7 +86,7 @@ async def getPlayers(event: dict, name: str) -> None:
                 cells = row.find_all("td")
                 if len(cells) >= 2:
                     playerName = cells[1].get_text(strip=True)
-                    if any(re.search(rf'\b{re.escape(part)}\b', playerName, re.IGNORECASE) for part in nameParts):
+                    if any(re.search(rf"\b{re.escape(part)}\b", playerName, re.IGNORECASE) for part in nameParts):
                         print(f"found match: {playerName}")
         
         if tournament["resultsLink"] != None:
@@ -101,14 +101,14 @@ async def getPlayers(event: dict, name: str) -> None:
             for row in rows:
                 cells = row.find_all("td")
                 if len(cells) >= 2:
-                    playerName = cells[1].get_text(strip=True).lower().split()
-                    if any(re.search(rf'\b{re.escape(part)}\b', playerName, re.IGNORECASE) for part in nameParts):
+                    playerName = cells[1].get_text(strip=True)
+                    if any(re.search(rf"\b{re.escape(part)}\b", playerName, re.IGNORECASE) for part in nameParts):
                         print(f"found match: {playerName}")
 
     return
 
 async def main() -> None:
-    QUERY = "terenzi flavio" # Test name from: https://www.vegaresult.com/vega/index.php?id=5492
+    QUERY = "Salvatore" # Test name from: https://www.vegaresult.com/vega/index.php?id=5492
 
     ids = await getIds()
 
