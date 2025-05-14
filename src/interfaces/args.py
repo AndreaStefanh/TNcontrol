@@ -48,6 +48,7 @@ def parseArgs():
                 match engine:
                     case "ves": settings.selectedEngine |= engineFlags.VESUS
                     case "cig": settings.selectedEngine |= engineFlags.CIGU18
+                    case "veg": settings.selectedEngine |= engineFlags.VEGARESULT
                     case _: print(f"Error: '{engine}' is not a valid engine"); exit(-1)
             
         elif arg.startswith("--region="):
@@ -85,8 +86,9 @@ def parseArgs():
         
         elif arg == "--available-engines":
             print("Available engines:")
-            print("VES  -> VESUS")
-            print("CIG  -> CIGU18")
+            print("VES -> VESUS")
+            print("VEG -> VEGARESULT")
+            print("CIG -> CIGU18")
             exit(0)
 
         elif arg == "--available-regions":

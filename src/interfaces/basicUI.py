@@ -29,7 +29,7 @@ def takeInput() -> str:
     
     return selection
 
-def printResult(result: List[Union[List[Dict[str, Union[str, Dict[str, str], Dict[str, List[str]]]]], List[List[str]]]]) -> None:
+def printResult(result: List[List[Union[Dict[str, Union[str, Dict[str, str], Dict[str, List[str]]]], Dict[str, Union[str, List[Dict[str, Optional[str]]], List[str]]], List[Union[str, List[str]]]]]]) -> None:
     names = settings.queryName.split("|")
     if len(names) == 1:
         formattedNames = f"`{names[0].strip()}`"
@@ -59,13 +59,45 @@ def printResult(result: List[Union[List[Dict[str, Union[str, Dict[str, str], Dic
         else:
             outputStr += "Couldn't find anything in Vesus engine.\n\n"
 
+    if settings.selectedEngine & engineFlags.VEGARESULT:
+        outputStr += f"Using the keyword(s): {formattedNames} for Vegaresult pre-registrations, I found the following tournaments:\n\n"
+        if settings.selectedEngine & engineFlags.VESUS: 
+            vegares = result[1]
+        else:
+            vegares = result[0]
+        
+        if len(vegares) >= 1:
+            for tournament in vegares:
+                outputStr += f"Event Name: {tournament['eventName']}\n"
+                outputStr += f" Place: {tournament['location']}\n"
+                
+                dates = tournament["startNEndTournament"].split("-")
+                outputStr += f" Start of the Tournament: {dates[0]}\n"
+                outputStr += f" End of the Tournament:{dates[1]}\n"
+                
+                outputStr += f" Participants:\n"
+                if tournament.get("playersList") != None:
+                    outputStr += "  From the players tab:\n"
+                    for player in tournament["playersList"]:
+                        outputStr += f"   - {player}\n"
+
+                if tournament.get("playersResultList") != None:
+                    outputStr += "  From the results tab:\n"
+                    for player in tournament["playersResultList"]:
+                        outputStr += f"   - {player}\n"
+                
+                outputStr += "\n"
+        else:
+            outputStr += "\nCouldn't find anything in VEGARESULT engine.\n\n"
+
     if settings.selectedEngine & engineFlags.CIGU18:
-        if settings.selectedEngine & engineFlags.VESUS:
+        outputStr += f"Using the keyword(s): {formattedNames} in the qualified CIGU18 FSI database, I found:\n"
+        if settings.selectedEngine & engineFlags.VESUS and settings.selectedEngine & engineFlags.VEGARESULT:
+            cigResult = result[2]
+        elif settings.selectedEngine & engineFlags.VESUS or settings.selectedEngine & engineFlags.VEGARESULT:
             cigResult = result[1]
         else:
             cigResult = result[0]
-
-        outputStr += f"Using the keyword(s): {formattedNames} in the qualified CIGU18 FSI database, I found:\n"
 
         if len(cigResult) >= 1:
             for qualified in cigResult:
@@ -98,20 +130,27 @@ def main() -> None:
 
     if settings.advancedMode is True:
         
-        print("Select where you want to execute the query by indicating the corresponding number (empty for both)")
+        print("Select where you want to execute the query by indicating the corresponding number separated by spaces (empty for all)")
         print("1. Vesus")
-        print("2. CIGU18")
-        selection = takeInput()
+        print("2. Vegaresult")
+        print("3. CIGU18")
+        selections = takeInput().split()
 
-        if selection == "1":
-            settings.selectedEngine = engineFlags.VESUS
-        elif selection == "2":
-            settings.selectedEngine = engineFlags.CIGU18
-        elif selection == "":
-            pass
-        else:
-            print(f"ERROR: '{selection}' isn't a valid answer")
-            exit(-1)
+        if selections != []:
+            settings.selectedEngine = engineFlags.NONE
+
+            for selection in selections: 
+                if selection == "1":
+                    settings.selectedEngine |= engineFlags.VESUS
+                elif selection == "2":
+                    settings.selectedEngine |= engineFlags.VEGARESULT
+                elif selection == "3":
+                    settings.selectedEngine |= engineFlags.CIGU18
+                elif selection == "":
+                    settings.selectedEngine = engineFlags.VESUS | engineFlags.VEGARESULT | engineFlags.CIGU18
+                else:
+                    print(f"ERROR: '{selection}' isn't a valid answer")
+                    exit(-1)
         
         if settings.selectedEngine & engineFlags.VESUS:
             print("Select the regions in which to perform the vesus query by indicating the corresponding number separating them with spaces (empty for all)")

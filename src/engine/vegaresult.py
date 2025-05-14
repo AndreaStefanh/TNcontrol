@@ -1,27 +1,24 @@
-#!/usr/bin/python3
-# WARNING: The vegaresult engine does not have the basic functionality yet so it is not yet merged with tncontrol engines manager but it can be run as a standalone script
-# when it reaches a semi-functional state it can be executed by tncontrol
 import asyncio
 import aiohttp
-import re
 import json
+import re
 
 from typing import Union, Optional, List, Dict
 from bs4 import BeautifulSoup
+from src.logNSet import settings, logger
 
-async def request(param: str) -> str:
+async def request(logInt: logger, param: str) -> str:
     async with aiohttp.ClientSession() as session:
         async with session.get("https://www.vegaresult.com/" + param, timeout=aiohttp.ClientTimeout(total=180)) as response:
 
             if response.status != 200:
                 text = await response.text()
-                print(f"UNEXPECTED STATUS CODE: {response.status} WHILE QUERYNG: https://www.vegaresult.com/vr/{param}\n{text}")
-                exit(-1)
+                logInt.error(f"UNEXPECTED STATUS CODE: {response.status} WHILE QUERYNG: https://www.vegaresult.com/vr/{param}\n{text}", shouldExit = True)
 
             return await response.text()
 
-async def getIds() -> list[str]:
-    tournamentsInfo = await request("vr/get_tournaments.php?status=next&timecontrol=all&interest=all&type=all&event=&startdate=&enddate=")
+async def getIds(logInt: logger) -> list[str]:
+    tournamentsInfo = await request(logInt, "vr/get_tournaments.php?status=next&timecontrol=all&interest=all&type=all&event=&startdate=&enddate=")
     tournamentsInfo = json.loads(tournamentsInfo)["tournaments"]
 
     ids = []
@@ -30,8 +27,8 @@ async def getIds() -> list[str]:
     
     return ids
 
-async def getTournamentInfo(id: str) -> Dict[str, Union[str, List[Dict[str, Optional[str]]]]]:
-    tournamentInfo = await request(f"vr/{id}")
+async def getTournamentInfo(logInt: logger, id: str) -> Dict[str, Union[str, List[Dict[str, Optional[str]]]]]:
+    tournamentInfo = await request(logInt, f"vr/{id}")
     soup = BeautifulSoup(tournamentInfo, "html.parser")
 
     eventName = soup.select_one("h3.mb-0.text-truncate.ps-5").get_text(strip=True)
@@ -74,13 +71,13 @@ async def getTournamentInfo(id: str) -> Dict[str, Union[str, List[Dict[str, Opti
         "tournaments": tournaments
     }
 
-async def getPlayers(event: dict, name: str) -> Optional[Dict[str, Union[str, List[Dict[str, Optional[str]]]]]]:
+async def getPlayers(logInt: logger, event: dict) -> Optional[Dict[str, Union[str, List[Dict[str, Optional[str]]]]]]:
     modifiedEvent = False
-    nameParts = name.split()
+    nameParts = settings.queryName.split()
 
     for tournament in event["tournaments"]:
         if tournament["playersLink"] != None:
-            tournamentPlayers = await request(f"vr/{tournament["playersLink"]}")
+            tournamentPlayers = await request(logInt, f"vr/{tournament["playersLink"]}")
             soup = BeautifulSoup(tournamentPlayers, "html.parser")
 
             rows = soup.find_all("tr")
@@ -99,9 +96,9 @@ async def getPlayers(event: dict, name: str) -> Optional[Dict[str, Union[str, Li
         if tournament["resultsLink"] != None:
             tournament["resultsLink"] = tournament["resultsLink"].lstrip("../")
             if tournament["resultsLink"].startswith("orion-trn/"):
-                print(f"In: https://www.vegaresult.com/{tournament["resultsLink"]} uses orion that is not supported yet")
+                logInt.error(f"In: https://www.vegaresult.com/{tournament["resultsLink"]} uses orion that is not supported yet")
                 continue
-            tournamentResults = await request(tournament["resultsLink"])
+            tournamentResults = await request(logInt, tournament["resultsLink"])
             soup = BeautifulSoup(tournamentResults, "html.parser")
             rows = soup.find_all("tr")
             for row in rows:
@@ -120,24 +117,19 @@ async def getPlayers(event: dict, name: str) -> Optional[Dict[str, Union[str, Li
 
     return
 
-async def main() -> None:
-    QUERY = "marco"
+async def query(logInt: logger) -> List[Dict[str, Union[str, List[Dict[str, Optional[str]]], List[str]]]]:
 
-    ids = await getIds()
+    ids = await getIds(logInt)
 
     results = []
     async with asyncio.TaskGroup() as tg:
-        tasks = [tg.create_task(getTournamentInfo(id)) for id in ids]
+        tasks = [tg.create_task(getTournamentInfo(logInt, id)) for id in ids]
     results = [task.result() for task in tasks]
     
     tasks = []
     async with asyncio.TaskGroup() as tg:
-        tasks = [tg.create_task(getPlayers(result, QUERY)) for result in results]
+        tasks = [tg.create_task(getPlayers(logInt, result)) for result in results]
     results = [task.result() for task in tasks]
     results = [result for result in results if result is not None]
 
-    for result in results:
-        print(json.dumps(result, indent=2, ensure_ascii=False))
-    
-if __name__ == "__main__":
-    asyncio.run(main())
+    return results

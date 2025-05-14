@@ -151,18 +151,23 @@ async def printMessageWithMenu(message: str) -> None:
         
         case menuFlags.SELECT_ENGINE:
             buttons = []
-            if settings.selectedEngine & settings.selectedEngine.VESUS:
-                buttons.append(["✅ Vesus"])
+
+            if settings.selectedEngine & engineFlags.VESUS:
+                buttons.append("✅ Vesus")
             else:
-                buttons.append(["❌ Vesus"])
+                buttons.append("❌ Vesus")
             
-            if settings.selectedEngine & settings.selectedEngine.CIGU18:
-                buttons.append(["✅ CIGU18"])
+            if settings.selectedEngine & engineFlags.VEGARESULT:
+                buttons.append("✅ Vegaresult (beta)")
             else:
-                buttons.append(["❌ CIGU18"])
-            buttons.append(["⬅️ Back"])
+                buttons.append("❌ Vegaresult (beta)")
+
+            if settings.selectedEngine & engineFlags.CIGU18:
+                buttons.append("✅ CIGU18")
+            else:
+                buttons.append("❌ CIGU18")
             
-            await sendMsg(message, ReplyKeyboardMarkup(buttons, resize_keyboard=True))
+            await sendMsg(message, ReplyKeyboardMarkup([buttons, ["⬅️ Back"]], resize_keyboard=True))
 
         case menuFlags.SELECT_REGION_P1:
             buttonsFirstRow = []
@@ -303,14 +308,46 @@ async def runCommand(context: Optional[ContextTypes.DEFAULT_TYPE] = None) -> Non
                 msg += "\n"
         else:
             msg += "Couldn't find anything in Vesus engine\n\n"
+    
+    if settings.selectedEngine & engineFlags.VEGARESULT:
+        msg += f"Using the keyword(s): {escapeMarkdown(formattedNames)} for Vegaresult pre-registrations, I found the following tournaments:\n\n"
+        if settings.selectedEngine & engineFlags.VESUS: 
+            vegares = result[1]
+        else:
+            vegares = result[0]
+        
+        if len(vegares) >= 1:
+            for tournament in vegares:
+                msg += f"🔹 *Event Name:* {escapeMarkdown(tournament['eventName'])}\n"
+                msg += f"📍 *Place:* {escapeMarkdown(tournament['location'])}\n"
+
+                dates = tournament["startNEndTournament"].split("-")
+                msg += f"🎯 *Start of the Tournament:* {dates[0]}\n"
+                msg += f"⏳ *End of the Tournament:* {dates[1]}\n"
+
+                msg += f"👥 *Participants:*\n"
+                if tournament.get("playersList") != None:
+                    msg += " From the players tab:\n"
+                    for player in tournament["playersList"]:
+                        msg += f"  - {player}\n"
+
+                if tournament.get("playersResultList") != None:
+                    msg += " From the results tab:\n"
+                    for player in tournament["playersResultList"]:
+                        msg += f"  - {player}\n"
+                
+                msg += "\n"
+        else:
+            msg += "\nCouldn't find anything in Vegaresult engine\n\n"
                
     if settings.selectedEngine & engineFlags.CIGU18:
-        if settings.selectedEngine & engineFlags.VESUS:
+        msg += f"Using the keyword(s): {escapeMarkdown(formattedNames)} in the qualified CIGU18 FSI database, I found:\n"
+        if settings.selectedEngine & engineFlags.VESUS and settings.selectedEngine & engineFlags.VEGARESULT:
+            GIGResult = result[2]
+        elif settings.selectedEngine & engineFlags.VESUS or settings.selectedEngine & engineFlags.VEGARESULT:
             GIGResult = result[1]
         else:
             GIGResult = result[0]
-         
-        msg += f"Using the keyword(s): {escapeMarkdown(formattedNames)} in the qualified CIGU18 FSI database, I found:\n"
         
         if len(GIGResult) >= 1:
             for quialified in GIGResult:
@@ -391,6 +428,10 @@ async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
             case "✅ Vesus" | "❌ Vesus":
                 settings.selectedEngine ^= engineFlags.VESUS
+                await printMessageWithMenu("ℹ️ Vesus engine toggled.")
+            
+            case "✅ Vegaresult (beta)" | "❌ Vegaresult (beta)":
+                settings.selectedEngine ^= engineFlags.VEGARESULT
                 await printMessageWithMenu("ℹ️ Vesus engine toggled.")
 
             case "✅ CIGU18" | "❌ CIGU18":

@@ -32,9 +32,10 @@ class logger:
         return
 
 class engineFlags(IntFlag):
-    NONE   = 0
-    VESUS  = 1
-    CIGU18 = 2
+    NONE        = 0
+    VESUS       = 1
+    VEGARESULT  = 2
+    CIGU18      = 4
 
 class interfaces(IntFlag):
     BASIC_UI = 0
@@ -43,7 +44,7 @@ class interfaces(IntFlag):
 class settings:
     advancedMode = False
     queryName = ""
-    selectedEngine: engineFlags = engineFlags.VESUS | engineFlags.CIGU18
+    selectedEngine: engineFlags = engineFlags.VESUS | engineFlags.VEGARESULT | engineFlags.CIGU18
     vesusRegionsToQuery = []
 
     logApiRequests = False
@@ -70,7 +71,7 @@ REGIONS = {
     "Sardegna":                 "SAR", 
     "Sicilia":                  "SIC", 
     "Toscana":                  "TOS", 
-    "Trentino-Alto Adige":      "TRE", 
+    "Trentino-Alto Adige":      "ALT", 
     "Umbria":                   "UMB", 
     "Valle d’Aosta":            "VAL", 
     "Veneto":                   "VEN",
@@ -223,6 +224,8 @@ def loadSettings() -> None:
                             settings.selectedEngine |= engineFlags.VESUS
                         elif engine == "cigu18" or engine == "cig":
                             settings.selectedEngine |= engineFlags.CIGU18
+                        elif engine == "vegaresult" or engine == "veg":
+                            settings.selectedEngine |= engineFlags.VEGARESULT
                         else:
                             print(f"Error: '{engine}' is not a valid engine")
                             exit(-1)
