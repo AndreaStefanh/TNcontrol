@@ -85,7 +85,8 @@ async def getPlayers(logInt: logger, event: dict) -> Optional[Dict[str, Union[st
                 cells = row.find_all("td")
                 if len(cells) >= 2:
                     playerName = cells[1].get_text(strip=True)
-                    if any(re.search(rf"\b{re.escape(part)}\b", playerName, re.IGNORECASE) for part in nameParts):
+                    nameRegex = r"\b" + r".*?".join(re.escape(part) for part in nameParts) + r"\b"
+                    if re.search(nameRegex, playerName, re.IGNORECASE):
                         if not modifiedEvent: modifiedEvent = True
                         if "playersList" in event:
                             event["playersList"].append(playerName)
@@ -105,7 +106,8 @@ async def getPlayers(logInt: logger, event: dict) -> Optional[Dict[str, Union[st
                 cells = row.find_all("td")
                 if len(cells) >= 2:
                     playerName = cells[1].get_text(strip=True)
-                    if any(re.search(rf"\b{re.escape(part)}\b", playerName, re.IGNORECASE) for part in nameParts):
+                    nameRegex = r"\b" + r".*?".join(re.escape(part) for part in nameParts) + r"\b"
+                    if re.search(nameRegex, playerName, re.IGNORECASE):
                         if not modifiedEvent: modifiedEvent = True
                         if "playersResultList" in event:
                             event["playersResultList"].append(playerName)
