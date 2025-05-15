@@ -88,7 +88,7 @@ def printResult(result: List[List[Union[Dict[str, Union[str, Dict[str, str], Dic
                 
                 outputStr += "\n"
         else:
-            outputStr += "\nCouldn't find anything in VEGARESULT engine.\n\n"
+            outputStr += "Couldn't find anything in Vegaresult engine.\n\n"
 
     if settings.selectedEngine & engineFlags.CIGU18:
         outputStr += f"Using the keyword(s): {formattedNames} in the qualified CIGU18 FSI database, I found:\n"

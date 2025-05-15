@@ -338,10 +338,10 @@ async def runCommand(context: Optional[ContextTypes.DEFAULT_TYPE] = None) -> Non
                 
                 msg += "\n"
         else:
-            msg += "\nCouldn't find anything in Vegaresult engine\n\n"
+            msg += "Couldn't find anything in Vegaresult engine\n\n"
                
     if settings.selectedEngine & engineFlags.CIGU18:
-        msg += f"Using the keyword(s): {escapeMarkdown(formattedNames)} in the qualified CIGU18 FSI database, I found:\n"
+        msg += f"Using the keyword(s): {escapeMarkdown(formattedNames)} in the qualified CIGU18 FSI database, I found:\n\n"
         if settings.selectedEngine & engineFlags.VESUS and settings.selectedEngine & engineFlags.VEGARESULT:
             GIGResult = result[2]
         elif settings.selectedEngine & engineFlags.VESUS or settings.selectedEngine & engineFlags.VEGARESULT:
@@ -366,7 +366,7 @@ async def runCommand(context: Optional[ContextTypes.DEFAULT_TYPE] = None) -> Non
                 msg += f"🇮🇹 *FSI ID:* [{escapeMarkdown(quialified[0])}](https://www.federscacchi.com/fsi/index.php/struttura/tesserati?&idx={escapeMarkdown(quialified[0])}&ric=1)\n"
                 msg += f"🏢 *Club ID:* [{escapeMarkdown(quialified[3])}](https://www.federscacchi.com/fsi/index.php/struttura/societa?idx={escapeMarkdown(quialified[3])}&anno={datetime.datetime.now().year}&ric=1)\n"
         else:
-            msg += "\nCouldn't find anything in CIGU18 engine\n\n"
+            msg += "Couldn't find anything in CIGU18 engine\n\n"
           
     await printMessageWithMenu(msg)
 
