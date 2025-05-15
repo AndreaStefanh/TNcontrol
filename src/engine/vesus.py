@@ -117,7 +117,7 @@ async def getTournamentInfo(shortKey: str, names: str, logInt: logger) -> Dict[s
             "scopes": ["REGISTRATIONSCOUNTS"]
         },
         "operationName": "TournamentPage_Subscription",
-        "docId": "5028c4f2454522745e46818479f5c185"
+        "docId": "97b4f619f6612849eb19433b7017aad1"
     })
 
     result = {
