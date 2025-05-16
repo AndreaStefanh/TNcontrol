@@ -69,22 +69,22 @@ def printResult(result: List[List[Union[Dict[str, Union[str, Dict[str, str], Dic
         if len(vegares) >= 1:
             for tournament in vegares:
                 outputStr += f"Event Name: {tournament['eventName']}\n"
-                outputStr += f" Place: {tournament['location']}\n"
+                outputStr += f"Place: {tournament['location']}\n"
                 
                 dates = tournament["startNEndTournament"].split("-")
-                outputStr += f" Start of the Tournament: {dates[0]}\n"
-                outputStr += f" End of the Tournament:{dates[1]}\n"
+                outputStr += f"Start of the Tournament: {dates[0]}\n"
+                outputStr += f"End of the Tournament:  {dates[1]}\n"
                 
-                outputStr += f" Participants:\n"
+                outputStr += f"Participants:\n"
                 if tournament.get("playersList") != None:
-                    outputStr += "  From the players tab:\n"
+                    outputStr += " From the players tab:\n"
                     for player in tournament["playersList"]:
-                        outputStr += f"   - {player}\n"
+                        outputStr += f"  - {player}\n"
 
                 if tournament.get("playersResultList") != None:
-                    outputStr += "  From the results tab:\n"
+                    outputStr += " From the results tab:\n"
                     for player in tournament["playersResultList"]:
-                        outputStr += f"   - {player}\n"
+                        outputStr += f"  - {player}\n"
                 
                 outputStr += "\n"
         else:
