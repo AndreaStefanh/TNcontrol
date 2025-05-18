@@ -29,7 +29,7 @@ def takeInput() -> str:
     
     return selection
 
-def printResult(result: List[List[Union[Dict[str, Union[str, Dict[str, str], Dict[str, List[str]]]], Dict[str, Union[str, List[Dict[str, Optional[str]]], List[str]]], List[Union[str, List[str]]]]]]) -> None:
+def printResult(result: List[List[Union[List[Dict[str, Union[str, Dict[str, str], Dict[str, List[str]]]]], List[Dict[str, Union[str, List[Dict[str, Union[str, List[str]]]]]]], List[List[Union[str, int]]]]]]) -> None:
     names = settings.queryName.split("|")
     if len(names) == 1:
         formattedNames = f"`{names[0].strip()}`"
@@ -67,25 +67,32 @@ def printResult(result: List[List[Union[Dict[str, Union[str, Dict[str, str], Dic
             vegares = result[0]
         
         if len(vegares) >= 1:
-            for tournament in vegares:
-                outputStr += f"Event Name: {tournament['eventName']}\n"
-                outputStr += f"Place: {tournament['location']}\n"
+            for event in vegares:
+                outputStr += f"Event Name: {event['eventName']}\n"
+                outputStr += f" Location: {event['location']}\n"
                 
-                dates = tournament["startNEndTournament"].split("-")
-                outputStr += f"Start of the Tournament: {dates[0]}\n"
-                outputStr += f"End of the Tournament:  {dates[1]}\n"
+                dates = event["startNEndTournament"].split("-")
+                outputStr += f" Start of the Event: {dates[0]}\n"
+                outputStr += f" End of the Event:  {dates[1]}\n"
                 
-                outputStr += f"Participants:\n"
-                if tournament.get("playersList") != None:
-                    outputStr += " From the players tab:\n"
-                    for player in tournament["playersList"]:
-                        outputStr += f"  - {player}\n"
+                outputStr += f" Tournaments:\n"
+                for tournament in event["tournaments"]:
+                    
+                    if tournament["playersList"] == [] and tournament["playersResultList"] == []:
+                        continue
 
-                if tournament.get("playersResultList") != None:
-                    outputStr += " From the results tab:\n"
-                    for player in tournament["playersResultList"]:
-                        outputStr += f"  - {player}\n"
-                
+                    outputStr += f"  Tournament Name: {tournament["name"]}\n"
+                    
+                    if tournament["playersList"] != []:
+                        outputStr += f"   From players tab (Link: https://www.vegaresult.com/vr/{tournament["playersLink"]}):\n"
+                        for player in tournament["playersList"]:
+                            outputStr += f"    - {player}\n"
+                                        
+                    if tournament["playersResultList"] != []:
+                        outputStr += f"   From results tab (Link: https://www.vegaresult.com/{tournament["resultsLink"]}):\n"
+                        for player in tournament["playersResultList"]:
+                            outputStr += f"    - {player}\n"
+                    
                 outputStr += "\n"
         else:
             outputStr += "Couldn't find anything in Vegaresult engine.\n\n"

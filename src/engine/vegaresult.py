@@ -71,11 +71,14 @@ async def getTournamentInfo(logInt: logger, id: str) -> Dict[str, Union[str, Lis
         "tournaments": tournaments
     }
 
-async def getPlayers(logInt: logger, event: dict) -> Optional[Dict[str, Union[str, List[Dict[str, Optional[str]]]]]]:
+async def getPlayers(logInt: logger, event: dict) -> Optional[Dict[str, Union[str, List[Dict[str, Union[str, List[str]]]]]]]:
     modifiedEvent = False
     nameParts = settings.queryName.split()
 
     for tournament in event["tournaments"]:
+        tournament["playersList"] = []
+        tournament["playersResultList"] = []
+
         if tournament["playersLink"] != None:
             tournamentPlayers = await request(logInt, f"vr/{tournament["playersLink"]}")
             soup = BeautifulSoup(tournamentPlayers, "html.parser")
@@ -87,13 +90,10 @@ async def getPlayers(logInt: logger, event: dict) -> Optional[Dict[str, Union[st
                     playerName = cells[1].get_text(strip=True)
                     nameRegex = r"\b" + r".*?".join(re.escape(part) for part in nameParts) + r"\b"
                     if re.search(nameRegex, playerName, re.IGNORECASE):
-                        if not modifiedEvent: modifiedEvent = True
-                        if "playersList" in event:
-                            event["playersList"].append(playerName)
-                        else:
-                            event["playersList"] = [playerName]
+                        if not modifiedEvent:
+                            modifiedEvent = True
+                        tournament["playersList"].append(playerName)
 
-        
         if tournament["resultsLink"] != None:
             tournament["resultsLink"] = tournament["resultsLink"].lstrip("../")
             if tournament["resultsLink"].startswith("orion-trn/"):
@@ -108,18 +108,16 @@ async def getPlayers(logInt: logger, event: dict) -> Optional[Dict[str, Union[st
                     playerName = cells[1].get_text(strip=True)
                     nameRegex = r"\b" + r".*?".join(re.escape(part) for part in nameParts) + r"\b"
                     if re.search(nameRegex, playerName, re.IGNORECASE):
-                        if not modifiedEvent: modifiedEvent = True
-                        if "playersResultList" in event:
-                            event["playersResultList"].append(playerName)
-                        else:
-                            event["playersResultList"] = [playerName]
-    
+                        if not modifiedEvent:
+                            modifiedEvent = True
+                        tournament["playersResultList"].append(playerName)
+
     if modifiedEvent:
         return event
 
     return
 
-async def query(logInt: logger) -> List[Dict[str, Union[str, List[Dict[str, Optional[str]]], List[str]]]]:
+async def query(logInt: logger) -> List[Dict[str, Union[str, List[Dict[str, Union[str, List[str]]]]]]]:
 
     ids = await getIds(logInt)
 

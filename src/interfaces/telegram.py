@@ -289,10 +289,10 @@ async def runCommand(context: Optional[ContextTypes.DEFAULT_TYPE] = None) -> Non
         if len(vesusResult) >= 1:
             for tournament in vesusResult:
                 msg += f"🔹 *Event Name:* {escapeMarkdown(tournament['eventName'])}\n"
-                msg += f"📍 *Place:* {escapeMarkdown(tournament['location'])}\n"
-                msg += f"📅 *End of Registration:*         {datetime.datetime.fromisoformat(tournament['endRegistration'].replace('Z', '+00:00')).strftime('%d %B %Y, %H:%M')} UTC\n"
-                msg += f"🎯 *Start of the Tournament:* {datetime.datetime.fromisoformat(tournament['startTournament'].replace('Z', '+00:00')).strftime('%d %B %Y, %H:%M')} UTC\n"
-                msg += f"⏳ *End of the Tournament:*   {datetime.datetime.fromisoformat(tournament['endTournament'].replace('Z', '+00:00')).strftime('%d %B %Y, %H:%M')} UTC\n"
+                msg += f"📍 *Location:* {escapeMarkdown(tournament['location'])}\n"
+                msg += f"📅 *End of Registration:* {datetime.datetime.fromisoformat(tournament['endRegistration'].replace('Z', '+00:00')).strftime('%d %B %Y, %H:%M')} UTC\n"
+                msg += f"🎯 *Start of Event:*           {datetime.datetime.fromisoformat(tournament['startTournament'].replace('Z', '+00:00')).strftime('%d %B %Y, %H:%M')} UTC\n"
+                msg += f"⏳ *End of Event:*             {datetime.datetime.fromisoformat(tournament['endTournament'].replace('Z', '+00:00')).strftime('%d %B %Y, %H:%M')} UTC\n"
 
                 msg += f"👥 *Participants:*\n"
                 for group, participants in tournament["names"].items():
@@ -307,7 +307,7 @@ async def runCommand(context: Optional[ContextTypes.DEFAULT_TYPE] = None) -> Non
                         msg += f"    - {escapeMarkdown(participant)}\n"    
                 msg += "\n"
         else:
-            msg += "Couldn't find anything in Vesus engine\n\n"
+            msg += "❌ Couldn't find anything in Vesus engine\n\n"
     
     if settings.selectedEngine & engineFlags.VEGARESULT:
         msg += f"Using the keyword(s): {escapeMarkdown(formattedNames)} for Vegaresult pre-registrations, I found the following tournaments:\n\n"
@@ -317,28 +317,35 @@ async def runCommand(context: Optional[ContextTypes.DEFAULT_TYPE] = None) -> Non
             vegares = result[0]
         
         if len(vegares) >= 1:
-            for tournament in vegares:
-                msg += f"🔹 *Event Name:* {escapeMarkdown(tournament['eventName'])}\n"
-                msg += f"📍 *Place:* {escapeMarkdown(tournament['location'])}\n"
+            for event in vegares:
+                msg += f"🔹 *Event Name:* {escapeMarkdown(event['eventName'])}\n"
+                msg += f"📍 *Location:* {escapeMarkdown(event['location'])}\n"
 
-                dates = tournament["startNEndTournament"].split("-")
-                msg += f"🎯 *Start of the Tournament:* {dates[0]}\n"
-                msg += f"⏳ *End of the Tournament:* {dates[1]}\n"
+                dates = event["startNEndTournament"].split("-")
+                msg += f"🎯 *Start of Event:* {dates[0]}\n"
+                msg += f"⏳ *End of Event:*  {dates[1]}\n"
 
-                msg += f"👥 *Participants:*\n"
-                if tournament.get("playersList") != None:
-                    msg += " From the players tab:\n"
-                    for player in tournament["playersList"]:
-                        msg += f"  - {player}\n"
+                msg += f"🏆 *Tournaments:*\n"
+                for tournament in event["tournaments"]:
 
-                if tournament.get("playersResultList") != None:
-                    msg += " From the results tab:\n"
-                    for player in tournament["playersResultList"]:
-                        msg += f"  - {player}\n"
-                
+                    if tournament["playersList"] == [] and tournament["playersResultList"] == []:
+                        continue
+
+                    msg += f"  🔸 *Tournament Name:* {escapeMarkdown(tournament['name'])}\n"
+
+                    if tournament["playersList"]:
+                        msg += f"   👥 [From players tab:](https://www.vegaresult.com/vr/{tournament['playersLink']})\n"
+                        for player in tournament["playersList"]:
+                            msg += f"      - {escapeMarkdown(player)}\n"
+
+                    if tournament["playersResultList"]:
+                        msg += f"   👥 [From results tab:](https://www.vegaresult.com/{tournament['resultsLink']})\n"
+                        for player in tournament["playersResultList"]:
+                            msg += f"      - {escapeMarkdown(player)}\n"
+
                 msg += "\n"
         else:
-            msg += "Couldn't find anything in Vegaresult engine\n\n"
+            msg += "❌ Couldn't find anything in Vegaresult engine\n\n"
                
     if settings.selectedEngine & engineFlags.CIGU18:
         msg += f"Using the keyword(s): {escapeMarkdown(formattedNames)} in the qualified CIGU18 FSI database, I found:\n"
@@ -366,7 +373,7 @@ async def runCommand(context: Optional[ContextTypes.DEFAULT_TYPE] = None) -> Non
                 msg += f"🇮🇹 *FSI ID:* [{escapeMarkdown(quialified[0])}](https://www.federscacchi.com/fsi/index.php/struttura/tesserati?&idx={escapeMarkdown(quialified[0])}&ric=1)\n"
                 msg += f"🏢 *Club ID:* [{escapeMarkdown(quialified[3])}](https://www.federscacchi.com/fsi/index.php/struttura/societa?idx={escapeMarkdown(quialified[3])}&anno={datetime.datetime.now().year}&ric=1)\n"
         else:
-            msg += "\nCouldn't find anything in CIGU18 engine\n\n"
+            msg += "\n❌ Couldn't find anything in CIGU18 engine\n\n"
           
     await printMessageWithMenu(msg)
 
