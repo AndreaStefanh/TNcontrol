@@ -52,6 +52,12 @@ async def getTournamentInfo(logInt: logger, id: str) -> Dict[str, Union[str, Lis
 
         playersLink = None
         resultsLink = None
+        endRegistration = None
+
+        for p in body.find_all("p"):
+            if "Chiusura registrazioni" in p.text or "Registration expire" in p.text:
+                endRegistration = p.text.split(": ", 1)[1]
+
         for a in body.find_all("a"):
             if "Giocatori" in a.text or "Players" in a.text:
                 playersLink = a.get("href")
@@ -60,6 +66,7 @@ async def getTournamentInfo(logInt: logger, id: str) -> Dict[str, Union[str, Lis
 
         tournaments.append({
             "name": name,
+            "endRegistration": endRegistration,
             "playersLink": playersLink,
             "resultsLink": resultsLink
         })

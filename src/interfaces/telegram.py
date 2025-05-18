@@ -333,6 +333,9 @@ async def runCommand(context: Optional[ContextTypes.DEFAULT_TYPE] = None) -> Non
 
                     msg += f"  🔸 *Tournament Name:* {escapeMarkdown(tournament['name'])}\n"
 
+                    if tournament["endRegistration"] != None:
+                        msg += f"  📅 *End of Registration:* {escapeMarkdown(datetime.datetime.strptime(tournament["endRegistration"], "%Y-%m-%d %H:%M:%S").strftime("%d %B %Y, %H:%M"))}\n"
+
                     if tournament["playersList"]:
                         msg += f"   👥 [From players tab:](https://www.vegaresult.com/vr/{tournament['playersLink']})\n"
                         for player in tournament["playersList"]:

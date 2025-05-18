@@ -83,6 +83,9 @@ def printResult(result: List[List[Union[List[Dict[str, Union[str, Dict[str, str]
 
                     outputStr += f"  Tournament Name: {tournament["name"]}\n"
                     
+                    if tournament["endRegistration"] != None:
+                        outputStr += f"  End of Registration: {datetime.datetime.strptime(tournament["endRegistration"], "%Y-%m-%d %H:%M:%S").strftime("%d %B %Y, %H:%M")}\n"
+                    
                     if tournament["playersList"] != []:
                         outputStr += f"   From players tab (Link: https://www.vegaresult.com/vr/{tournament["playersLink"]}):\n"
                         for player in tournament["playersList"]:
