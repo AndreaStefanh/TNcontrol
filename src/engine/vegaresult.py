@@ -83,7 +83,8 @@ async def getTournamentInfo(logInt: logger, id: str) -> Dict[str, Union[str, Lis
 
 async def getPlayers(logInt: logger, event: dict) -> Optional[Dict[str, Union[str, List[Dict[str, Union[str, List[str]]]]]]]:
     modifiedEvent = False
-    nameParts = settings.queryName.split()
+    namesList = settings.queryName.split("|")
+    namesPartsList = [re.split(r"\s+", name.strip().lower()) for name in namesList]
 
     for tournament in event["tournaments"]:
         tournament["playersList"] = []
@@ -97,30 +98,33 @@ async def getPlayers(logInt: logger, event: dict) -> Optional[Dict[str, Union[st
             for row in rows:
                 cells = row.find_all("td")
                 if len(cells) >= 2:
-                    playerName = cells[1].get_text(strip=True)
-                    nameRegex = r"\b" + r".*?".join(re.escape(part) for part in nameParts) + r"\b"
-                    if re.search(nameRegex, playerName, re.IGNORECASE):
-                        if not modifiedEvent:
-                            modifiedEvent = True
-                        tournament["playersList"].append(playerName)
+                    playerName = cells[1].get_text(strip=True).lower()
+                    for nameParts in namesPartsList:
+                        nameRegex = r"\b" + r".*?".join(re.escape(part) for part in nameParts) + r"\b"
+                        if re.search(nameRegex, playerName, re.IGNORECASE):
+                            if not modifiedEvent:
+                                modifiedEvent = True
+                            tournament["playersList"].append(playerName)
 
         if tournament["resultsLink"] != None:
             tournament["resultsLink"] = tournament["resultsLink"].lstrip("../")
             if tournament["resultsLink"].startswith("orion-trn/"):
                 await logInt.error(f"In: https://www.vegaresult.com/{tournament["resultsLink"]} uses orion that is not supported yet")
                 continue
+
             tournamentResults = await request(logInt, tournament["resultsLink"])
             soup = BeautifulSoup(tournamentResults, "html.parser")
             rows = soup.find_all("tr")
             for row in rows:
                 cells = row.find_all("td")
                 if len(cells) >= 2:
-                    playerName = cells[1].get_text(strip=True)
-                    nameRegex = r"\b" + r".*?".join(re.escape(part) for part in nameParts) + r"\b"
-                    if re.search(nameRegex, playerName, re.IGNORECASE):
-                        if not modifiedEvent:
-                            modifiedEvent = True
-                        tournament["playersResultList"].append(playerName)
+                    playerName = cells[1].get_text(strip=True).lower()
+                    for nameParts in namesPartsList:
+                        nameRegex = r"\b" + r".*?".join(re.escape(part) for part in nameParts) + r"\b"
+                        if re.search(nameRegex, playerName, re.IGNORECASE):
+                            if not modifiedEvent:
+                                modifiedEvent = True
+                            tournament["playersResultList"].append(playerName)
 
     if modifiedEvent:
         return event
