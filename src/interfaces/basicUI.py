@@ -2,6 +2,7 @@ import prompt_toolkit
 import datetime
 import calendar
 import asyncio
+import sys
 
 from prompt_toolkit.history import DummyHistory
 from typing import Optional, Union, List, Dict
@@ -25,7 +26,7 @@ def takeInput() -> str:
     try:
         selection = prompt_toolkit.prompt("> ", history = DummyHistory())
     except KeyboardInterrupt:
-        exit(0)
+        sys.exit(0)
     
     return selection
 
@@ -136,7 +137,7 @@ def main() -> None:
 
         if settings.queryName == "":
             print("Please select a name to query...")
-            exit(-1)
+            sys.exit(-1)
 
     if settings.advancedMode is True:
         
@@ -160,7 +161,7 @@ def main() -> None:
                     settings.selectedEngine = engineFlags.VESUS | engineFlags.VEGARESULT | engineFlags.CIGU18
                 else:
                     print(f"ERROR: '{selection}' isn't a valid answer")
-                    exit(-1)
+                    sys.exit(-1)
         
         if settings.selectedEngine & engineFlags.VESUS:
             print("Select the regions in which to perform the vesus query by indicating the corresponding number separating them with spaces (empty for all)")
@@ -175,11 +176,11 @@ def main() -> None:
                         i = int(i)
                     except ValueError:
                         print(f"ERROR: '{i}' isn't a valid answer")
-                        exit(-1)
+                        sys.exit(-1)
 
                     if i > 20 or i < 1:
                         print(f"ERROR: '{i}' isn't a valid answer")
-                        exit(-1)
+                        sys.exit(-1)
 
                     settings.vesusRegionsToQuery.append(list(REGIONS.keys())[i - 1])
         
@@ -192,7 +193,7 @@ def main() -> None:
             settings.logApiRequests = False
         else:
             print(f"ERROR: '{selection}' isn't a valid answer")
-            exit(-1)
+            sys.exit(-1)
 
 
     if settings.vesusRegionsToQuery == [] or settings.vesusRegionsToQuery == [""]:

@@ -1,6 +1,7 @@
 import datetime
 import pyjson5
 import json
+import sys
 
 from typing import Optional, Dict, Any
 from enum import IntFlag
@@ -17,7 +18,7 @@ class logger:
             logFile.write(f"[{timestamp}] ERROR: {msg}\n")
 
         if shouldExit:
-            exit(-1)
+            sys.exit(-1)
         
         return
     
@@ -207,7 +208,7 @@ def loadSettings() -> None:
                         settings.interface = interfaces.TELEGRAM
                     else:
                         print(f"Error: '{value}' is not a valid interface")
-                        exit(-1)
+                        sys.exit(-1)
                 elif key == "telegramKey":
                     settings.telegramAPIKey = value
                 elif key == "queryName":
@@ -228,7 +229,7 @@ def loadSettings() -> None:
                             settings.selectedEngine |= engineFlags.VEGARESULT
                         else:
                             print(f"Error: '{engine}' is not a valid engine")
-                            exit(-1)
+                            sys.exit(-1)
                 elif key == "vesusSelectedRegions":
                     for region in value:
                         region = region.upper()
@@ -237,17 +238,17 @@ def loadSettings() -> None:
                             settings.vesusRegionsToQuery.append(list(REGIONS.keys()) [list(REGIONS.values()).index(region.upper())])
                         else:
                             print(f"Error: '{region}' is not a valid region")
-                            exit(-1)
+                            sys.exit(-1)
                 elif key == "logApiRequests":
                     if type(value) is not bool:
                         print(f"Error: '{key}' must be a boolean")
-                        exit(-1)
+                        sys.exit(-1)
 
                     settings.logApiRequests = bool(value)
                 elif key == "telegramAutoRun":
                     if type(value) is not bool:
                         print(f"Error: '{key}' must be a boolean")
-                        exit(-1)
+                        sys.exit(-1)
                     
                     settings.telegramAutoRun = bool(value)
                 elif key == "autoRunTime":
@@ -255,17 +256,17 @@ def loadSettings() -> None:
                         settings.telegramAutoRunTime = datetime.datetime.strptime(value, "%H:%M")
                     except ValueError:
                         print(f"Error: '{key}' isn't formatted in the HH:MM format")
-                        exit(-1)
+                        sys.exit(-1)
                 else:
                     print(f"Error: '{key}' is not a valid setting")
-                    exit(-1)
+                    sys.exit(-1)
         
     except FileNotFoundError:
         if not settings.settingsFile == "settings.json":
             print(f"Error: '{settings.settingsFile}' file not found")
-            exit(-1)
+            sys.exit(-1)
     except pyjson5.Json5DecodeError:
         print(f"Error: '{settings.settingsFile}' file is not a valid JSON file")
-        exit(-1)
+        sys.exit(-1)
 
     return

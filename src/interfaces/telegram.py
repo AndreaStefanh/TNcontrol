@@ -2,6 +2,8 @@ import traceback
 import datetime
 import calendar
 import asyncio
+import sys
+
 from typing import Optional
 from enum import IntFlag
 from apscheduler.jobstores.base import JobLookupError
@@ -67,7 +69,7 @@ async def shutdown() -> None:
     if app is not None:
         await app.stop()
     
-    #exit(0)
+    #sys.exit(0)
 
 def loadChatID() -> None:
     global savedChatIDs
@@ -679,7 +681,7 @@ def main() -> None:
 
     if settings.telegramAPIKey == "":
         print("Error: Telegram API key not set")
-        exit(-1)
+        sys.exit(-1)
     
     
     bot = Bot(token=settings.telegramAPIKey)

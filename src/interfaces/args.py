@@ -23,14 +23,14 @@ def parseArgs():
             print("      --available-engines    Show all available engines")
             print("      --available-regions    Show all available regions formart for the '--region' flag")
             print("      --telegram[=APIKEY]    Enable telegram bot interface")
-            exit(0)
+            sys.exit(0)
 
         elif arg.startswith("--name="):
             name = arg.split("=")[1]
 
             if name == "":
                 print("Error: '--name=' cannot be empty")
-                exit(-1)
+                sys.exit(-1)
             
             settings.queryName = name
             
@@ -40,7 +40,7 @@ def parseArgs():
 
             if engines == [""]:
                 print("Error: '--engine=' cannot be empty")
-                exit(-1)
+                sys.exit(-1)
 
             settings.selectedEngine = engineFlags.NONE
 
@@ -49,7 +49,7 @@ def parseArgs():
                     case "ves": settings.selectedEngine |= engineFlags.VESUS
                     case "cig": settings.selectedEngine |= engineFlags.CIGU18
                     case "veg": settings.selectedEngine |= engineFlags.VEGARESULT
-                    case _: print(f"Error: '{engine}' is not a valid engine"); exit(-1)
+                    case _: print(f"Error: '{engine}' is not a valid engine"); sys.exit(-1)
             
         elif arg.startswith("--region="):
             regions = arg.split("=")[1].split(",")
@@ -57,7 +57,7 @@ def parseArgs():
 
             if regions == [""]:
                 print("Error: '--region=' cannot be empty")
-                exit(-1)
+                sys.exit(-1)
             
             for region in regions:
                 if region == "all":
@@ -67,7 +67,7 @@ def parseArgs():
                     settings.vesusRegionsToQuery.append(list(REGIONS.keys()) [list(REGIONS.values()).index(region.upper())])
                 else:
                     print(f"Error: '{region}' is not a valid region")
-                    exit(-1)
+                    sys.exit(-1)
         
         elif arg == "-a" or arg == "--advanced":
             settings.advancedMode = True
@@ -80,7 +80,7 @@ def parseArgs():
 
             if settingsFile == "":
                 print("Error: '--settings=' cannot be empty")
-                exit(-1)
+                sys.exit(-1)
 
             settings.settingsFile = settingsFile
         
@@ -89,13 +89,13 @@ def parseArgs():
             print("VES -> VESUS")
             print("VEG -> VEGARESULT")
             print("CIG -> CIGU18")
-            exit(0)
+            sys.exit(0)
 
         elif arg == "--available-regions":
             print("Available regions fromat for the '--region' flag:")
             for region, code in REGIONS.items():
                 print(f"{code}  -> {region}")
-            exit(0)
+            sys.exit(0)
         
         elif arg.startswith("--telegram"):
             settings.interface = interfaces.TELEGRAM
@@ -106,6 +106,6 @@ def parseArgs():
 
         else:
             print(f"Error: '{arg}' is not a valid argument")
-            exit(-1)
+            sys.exit(-1)
     
     return
