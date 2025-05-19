@@ -14,8 +14,11 @@ async def request(logInt: logger, param: str) -> str:
             if response.status != 200:
                 text = await response.text()
                 await logInt.error(f"UNEXPECTED STATUS CODE: {response.status} WHILE QUERYNG: https://www.vegaresult.com/vr/{param}\n{text}", shouldExit = True)
+            
+            text = await response.text()
 
-            return await response.text()
+    await logInt.apiRequest("https://www.vegaresult.com/" + param, {}, text)
+    return text
 
 async def getIds(logInt: logger) -> list[str]:
     tournamentsInfo = await request(logInt, "vr/get_tournaments.php?status=next&timecontrol=all&interest=all&type=all&event=&startdate=&enddate=")
