@@ -13,7 +13,7 @@ async def request(logInt: logger, param: str) -> str:
 
             if response.status != 200:
                 text = await response.text()
-                logInt.error(f"UNEXPECTED STATUS CODE: {response.status} WHILE QUERYNG: https://www.vegaresult.com/vr/{param}\n{text}", shouldExit = True)
+                await logInt.error(f"UNEXPECTED STATUS CODE: {response.status} WHILE QUERYNG: https://www.vegaresult.com/vr/{param}\n{text}", shouldExit = True)
 
             return await response.text()
 
@@ -104,7 +104,7 @@ async def getPlayers(logInt: logger, event: dict) -> Optional[Dict[str, Union[st
         if tournament["resultsLink"] != None:
             tournament["resultsLink"] = tournament["resultsLink"].lstrip("../")
             if tournament["resultsLink"].startswith("orion-trn/"):
-                logInt.error(f"In: https://www.vegaresult.com/{tournament["resultsLink"]} uses orion that is not supported yet")
+                await logInt.error(f"In: https://www.vegaresult.com/{tournament["resultsLink"]} uses orion that is not supported yet")
                 continue
             tournamentResults = await request(logInt, tournament["resultsLink"])
             soup = BeautifulSoup(tournamentResults, "html.parser")
