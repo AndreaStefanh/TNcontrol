@@ -3,7 +3,7 @@
 > [!WARNING]
 > This software is unfinished. Keep your expectations low.
 
-TNcontrol is a tool designed to find chess tournaments where the person you are looking for has pre-registered. It supports querying on [Vesus](https://vesus.org/) and checks if the person you are looking for has qualified for [CIGU18](https://it.wikipedia.org/wiki/Campionato_italiano_giovanile_di_scacchi), and it also integrates with Telegram for easier interaction.
+TNcontrol is a tool designed to find chess tournaments where the person you are looking for has pre-registered. It supports querying on [Vesus](https://vesus.org/), on [Vegaresult](https://www.vegaresult.com/it/tournaments.php) and checks if the person you are looking for has qualified for [CIGU18](https://it.wikipedia.org/wiki/Campionato_italiano_giovanile_di_scacchi), and it also integrates with Telegram for easier interaction.
 
 ---
 
@@ -17,7 +17,7 @@ Telegram interface, basic demo.
 
 ## Features
 
-- Search for italian chess tournaments on [Vesus](https://vesus.org/).
+- Search for italian chess tournaments on [Vesus](https://vesus.org/) and on [Vegaresult](https://www.vegaresult.com/it/tournaments.php).
 - Check if a person has qualified for [CIGU18](https://it.wikipedia.org/wiki/Campionato_italiano_giovanile_di_scacchi).
 - Support for querying specific Italian regions for vesus.
 - Supports querying multiple people by separating names with '|' symbol
@@ -132,9 +132,5 @@ You can also create a **settings.json** file in the program root to keep your se
 
 ## TODO
 
-- For the engine
-  - [ ] Add support to query [Vegaresult](https://www.vegaresult.com/it/tournaments.php)
-  - [ ] Add proxy support so ip address doesn't timeout
-
-- For the terminal interface
-  - [ ] Add support to a tui interface
+- [ ] Add proxy support so ip address doesn't timeout
+- [ ] Add support to a tui interface
