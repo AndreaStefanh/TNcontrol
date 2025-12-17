@@ -100,7 +100,7 @@ async def getShortKeys(admin1Id: str, logInt: logger) -> List[str]:
             "scopes": ["FUTURE"]
         },
         "operationName": "EventsListOrganismQuery",
-        "docId": "cce98ba4c61d6dd47c991081da26cf7c"
+        "docId": "651053be1973b036ddbee7515c0252d9"
     })
 
     for event in resp["data"]["events"]["edges"]:
@@ -121,7 +121,7 @@ async def getTournamentInfo(shortKey: str, names: str, logInt: logger) -> Dict[s
             "scopes": ["REGISTRATIONSCOUNTS"]
         },
         "operationName": "TournamentPage_Subscription",
-        "docId": "b95689f4cf0fedbdaa5593aab84f4caa"
+        "docId": "23b15d6f3ffccbc7d00ef74bd9eb57dd"
     })
 
     result = {
