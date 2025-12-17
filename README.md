@@ -135,3 +135,4 @@ You can also create a **settings.json** file in the program root to keep your se
 
 - [ ] Add proxy support so ip address doesn't timeout
 - [ ] Add support to a tui interface
+- [ ] Add support for querying past tournaments on vesus and vegaresult
