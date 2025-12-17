@@ -127,6 +127,7 @@ You can also create a **settings.json** file in the program root to keep your se
 - Sometimes connections to Vesus fail to perform the initial 3-way TCP handshake (no idea why)
 - If you make many queries on vesus if you have especially all the regions selected without at least waiting 1 minute between one request and another the vesus server will timeout your ip
 - CIGU18 engine takes 30 seconds to run when vesus only takes 10 seconds to run for all regions so cig engine creates a 20 second bottleneck because [F.S.I.](https://en.wikipedia.org/wiki/Italian_Chess_Federation) servers suck
+- The docIDs for Vesus parsing will need to be updated from time to time
 
 ---
 
