@@ -64,12 +64,12 @@ async def requestToAPI(logInt: logger, req: Dict[Any, Any]) -> Dict[Any, Any]:
     if returnResponse is None:
         await logInt.error("returnResponse is empty", shouldExit=True)
 
-    response = json.loads(returnResponse)
+    response = json.loads(returnResponse) # pyright: ignore[reportArgumentType]
     if response.get("errors"):
         await logInt.error(f"REQUESTING: {url} WITH PARMS: {req} GIVES US THIS ERROR: {returnResponse}.\nMost likely the docid has expired, try to modify it in the source code or report it\n", shouldExit=True)
     
-    await logInt.apiRequest(url, req, returnResponse)
-    return json.loads(returnResponse)
+    await logInt.apiRequest(url, req, returnResponse) # pyright: ignore[reportArgumentType]
+    return json.loads(returnResponse) # pyright: ignore[reportArgumentType]
 
 async def getShortKeys(admin1Id: str, logInt: logger) -> List[str]:
     
