@@ -4,6 +4,8 @@ apiLogs.txt
 errorLogs.txt
 chatIDs.txt
 settings.json
+run
+run.bat
 src/__pycache__
 src/engine/__pycache__
 src/interfaces/__pycache__
