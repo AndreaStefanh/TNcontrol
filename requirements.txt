@@ -1,7 +1,0 @@
-apscheduler
-prompt_toolkit
-pyjson5
-aiohttp
-beautifulsoup4
-python-telegram-bot
-python-telegram-bot[ext]
